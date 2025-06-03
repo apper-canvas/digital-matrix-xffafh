@@ -36,6 +36,19 @@ const [showGallery, setShowGallery] = useState(false)
     enabled: false,
     frequency: 'daily'
   })
+const [showInquiryForm, setShowInquiryForm] = useState(false)
+  const [inquiries, setInquiries] = useState([])
+  const [inquiryForm, setInquiryForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    propertyInterest: 'general',
+    message: '',
+    propertyId: null,
+    propertyTitle: ''
+  })
+  const [inquiryErrors, setInquiryErrors] = useState({})
+
   // Mock property data
   const mockProperties = [
     {
@@ -202,11 +215,84 @@ const [showGallery, setShowGallery] = useState(false)
     }
     setSavedProperties(newSaved)
 }
+// Inquiry form validation
+  const validateInquiryForm = () => {
+    const errors = {}
+    
+    if (!inquiryForm.name.trim()) {
+      errors.name = 'Name is required'
+    }
+    
+    if (!inquiryForm.email.trim()) {
+      errors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inquiryForm.email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+    
+    if (!inquiryForm.phone.trim()) {
+      errors.phone = 'Phone number is required'
+    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(inquiryForm.phone.replace(/[\s\-\(\)]/g, ''))) {
+      errors.phone = 'Please enter a valid phone number'
+    }
+    
+    if (!inquiryForm.message.trim()) {
+      errors.message = 'Message is required'
+    } else if (inquiryForm.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters long'
+    }
+    
+    return errors
+  }
+
+  // Handle inquiry form submission
+  const handleInquirySubmit = (e) => {
+    e.preventDefault()
+    
+    const errors = validateInquiryForm()
+    setInquiryErrors(errors)
+    
+    if (Object.keys(errors).length === 0) {
+      const newInquiry = {
+        id: Date.now().toString(),
+        ...inquiryForm,
+        timestamp: new Date().toISOString(),
+        status: 'sent'
+      }
+      
+      const updatedInquiries = [...inquiries, newInquiry]
+      setInquiries(updatedInquiries)
+      
+      // Persist to localStorage
+      localStorage.setItem('propertyInquiries', JSON.stringify(updatedInquiries))
+      
+      // Reset form
+      setInquiryForm({
+        name: '',
+        email: '',
+        phone: '',
+        propertyInterest: 'general',
+        message: '',
+        propertyId: null,
+        propertyTitle: ''
+      })
+      setInquiryErrors({})
+      setShowInquiryForm(false)
+      
+      toast.success('Inquiry sent successfully! We will contact you soon.')
+    } else {
+      toast.error('Please correct the errors in the form')
+    }
+  }
 
   const handleInquiry = (property) => {
-    toast.success(`Inquiry sent for ${property.title}`)
-    setSelectedProperty(null)
+    setInquiryForm(prev => ({
+      ...prev,
+      propertyId: property.id,
+      propertyTitle: property.title
+    }))
+    setShowInquiryForm(true)
   }
+  
   const getComparedPropertiesData = () => {
     return mockProperties.filter(property => comparedProperties.has(property.id))
   }
@@ -921,7 +1007,7 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4">
+<div className="flex flex-col sm:flex-row gap-4">
                     <button
                       onClick={() => handleInquiry(selectedProperty)}
                       className="btn-primary flex-1"
@@ -1553,8 +1639,191 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
             </motion.div>
           </motion.div>
         )}
+</AnimatePresence>
+
+      {/* Send Inquiry Form Modal */}
+      <AnimatePresence>
+        {showInquiryForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowInquiryForm(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-white dark:bg-surface-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                      Send Inquiry
+                    </h2>
+                    <p className="text-surface-600 dark:text-surface-300 mt-1">
+                      {inquiryForm.propertyTitle ? `About: ${inquiryForm.propertyTitle}` : 'General property inquiry'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowInquiryForm(false)}
+                    className="p-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 rounded-xl transition-colors"
+                  >
+                    <ApperIcon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <form onSubmit={handleInquirySubmit} className="p-6 space-y-6">
+                {/* Property Context */}
+                {inquiryForm.propertyTitle && (
+                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                    <div className="flex items-center text-primary">
+                      <ApperIcon name="Home" className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Property of Interest</span>
+                    </div>
+                    <p className="text-surface-900 dark:text-white font-semibold mt-1">
+                      {inquiryForm.propertyTitle}
+                    </p>
+                  </div>
+                )}
+
+                {/* Personal Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={inquiryForm.name}
+                      onChange={(e) => setInquiryForm(prev => ({ ...prev, name: e.target.value }))}
+                      className={`input-field ${inquiryErrors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                      placeholder="Enter your full name"
+                    />
+                    {inquiryErrors.name && (
+                      <p className="text-red-500 text-xs mt-1">{inquiryErrors.name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={inquiryForm.email}
+                      onChange={(e) => setInquiryForm(prev => ({ ...prev, email: e.target.value }))}
+                      className={`input-field ${inquiryErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                      placeholder="Enter your email address"
+                    />
+                    {inquiryErrors.email && (
+                      <p className="text-red-500 text-xs mt-1">{inquiryErrors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      value={inquiryForm.phone}
+                      onChange={(e) => setInquiryForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className={`input-field ${inquiryErrors.phone ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                      placeholder="Enter your phone number"
+                    />
+                    {inquiryErrors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{inquiryErrors.phone}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Interest Type
+                    </label>
+                    <select
+                      value={inquiryForm.propertyInterest}
+                      onChange={(e) => setInquiryForm(prev => ({ ...prev, propertyInterest: e.target.value }))}
+                      className="input-field"
+                    >
+                      <option value="general">General Inquiry</option>
+                      <option value="buying">Interested in Buying</option>
+                      <option value="renting">Interested in Renting</option>
+                      <option value="viewing">Schedule a Viewing</option>
+                      <option value="investment">Investment Opportunity</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    value={inquiryForm.message}
+                    onChange={(e) => setInquiryForm(prev => ({ ...prev, message: e.target.value }))}
+                    className={`input-field resize-none ${inquiryErrors.message ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    rows="4"
+                    placeholder="Please describe your requirements, questions, or any specific information you'd like to know about this property..."
+                  />
+                  {inquiryErrors.message && (
+                    <p className="text-red-500 text-xs mt-1">{inquiryErrors.message}</p>
+                  )}
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                    Minimum 10 characters required
+                  </p>
+                </div>
+
+                {/* Additional Information */}
+                <div className="bg-surface-50 dark:bg-surface-900 rounded-xl p-4">
+                  <h4 className="font-medium text-surface-900 dark:text-white mb-2 flex items-center">
+                    <ApperIcon name="Info" className="w-4 h-4 mr-2" />
+                    What happens next?
+                  </h4>
+                  <ul className="text-sm text-surface-600 dark:text-surface-300 space-y-1">
+                    <li>• Your inquiry will be sent to the property agent/owner</li>
+                    <li>• You'll receive a confirmation email with your inquiry details</li>
+                    <li>• Expect a response within 24 hours during business days</li>
+                    <li>• You can track your inquiry status in your saved inquiries</li>
+                  </ul>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowInquiryForm(false)}
+                    className="btn-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary flex-1"
+                  >
+                    <ApperIcon name="Send" className="w-5 h-5 mr-2" />
+                    Send Inquiry
+                  </button>
+                </div>
+
+                {/* Required Fields Note */}
+                <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
+                  * Required fields
+                </p>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
-</div>
+    </div>
   )
 }
 
