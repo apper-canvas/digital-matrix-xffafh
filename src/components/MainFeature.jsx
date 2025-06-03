@@ -362,10 +362,11 @@ const handleInquirySubmit = (e) => {
         name: '',
         email: '',
         phone: '',
-        propertyInterest: 'general',
+propertyInterest: 'general',
         message: '',
         propertyId: null,
-})
+        propertyTitle: ''
+      })
       setInquiryErrors({})
       setShowInquiryForm(false)
     }
@@ -377,9 +378,9 @@ const handleInquirySubmit = (e) => {
 const removeFavorite = (propertyId) => {
     const newSaved = new Set(savedProperties)
     newSaved.delete(propertyId)
-    setSavedProperties(newSaved)
+setSavedProperties(newSaved)
   }
-  const handleInquiry = (property) => {
+  
   const handleInquiry = (property) => {
     setInquiryForm(prev => ({
       ...prev,
@@ -532,14 +533,16 @@ const newName = prompt('Enter new name for this search:', search.name)
     if (newName && newName.trim()) {
       setSavedSearches(prev => prev.map(s => 
         s.id === searchId ? { ...s, name: newName.trim() } : s
-      ))
+))
     }
-const deleteSavedSearch = (searchId) => {
+  }
+  
+  const deleteSavedSearch = (searchId) => {
     setSavedSearches(prev => prev.filter(s => s.id !== searchId))
   }
 
   const propertyMatchesSavedSearch = (property, search) => {
-    const matchesSearch = !search.searchQuery || 
+    const matchesSearch = !search.searchQuery ||
       property.title.toLowerCase().includes(search.searchQuery.toLowerCase()) ||
       property.address.city.toLowerCase().includes(search.searchQuery.toLowerCase())
     
@@ -1622,12 +1625,13 @@ onClick={() => setGalleryRotation(0)}
             <ApperIcon name="Heart" className="w-4 h-4" />
             <span>View Favorites ({savedProperties.size})</span>
           </motion.button>
-        </div>
+</div>
       </div>
+      
       {/* Favorites View */}
-        {showFavorites ? (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+      {showFavorites && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
                 Your Favorite Properties ({savedProperties.size})
               </h2>
@@ -1740,10 +1744,12 @@ onClick={() => setGalleryRotation(0)}
                       </div>
                     </motion.div>
                   ))}
-              </motion.div>
-)}
+</motion.div>
+            )}
           </div>
-        ) : null}
+        </div>
+      )}
+      
       {/* Saved Searches Modal */}
       <AnimatePresence>
         {showSavedSearches && (
