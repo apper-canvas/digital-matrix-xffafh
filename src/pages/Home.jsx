@@ -5,10 +5,67 @@ import ApperIcon from '../components/ApperIcon'
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(false)
+  const [showListModal, setShowListModal] = useState(false)
+  const [propertyForm, setPropertyForm] = useState({
+    title: '',
+    price: '',
+    location: '',
+    bedrooms: '',
+    bathrooms: '',
+    area: '',
+    description: ''
+  })
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     document.documentElement.classList.toggle('dark')
+  }
+
+  const scrollToSearch = () => {
+    const searchSection = document.querySelector('#main-feature-section')
+    if (searchSection) {
+      searchSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+  }
+
+  const handleListProperty = () => {
+    setShowListModal(true)
+  }
+
+  const handleSubmitProperty = (e) => {
+    e.preventDefault()
+    // Here you would typically send data to backend
+    console.log('Property submitted:', propertyForm)
+    
+    // Reset form and close modal
+    setPropertyForm({
+      title: '',
+      price: '',
+      location: '',
+      bedrooms: '',
+      bathrooms: '',
+      area: '',
+      description: ''
+    })
+    setShowListModal(false)
+    
+    // Show success message (you can replace with toast notification)
+    alert('Property listed successfully!')
+  }
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setPropertyForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const closeModal = () => {
+    setShowListModal(false)
   }
 
   const features = [
@@ -95,11 +152,17 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <button className="btn-primary w-full sm:w-auto">
+<button 
+                onClick={scrollToSearch}
+                className="btn-primary w-full sm:w-auto"
+              >
                 <ApperIcon name="Search" className="w-5 h-5 mr-2" />
                 Start Searching
               </button>
-              <button className="btn-secondary w-full sm:w-auto">
+              <button 
+                onClick={handleListProperty}
+                className="btn-secondary w-full sm:w-auto"
+              >
                 <ApperIcon name="PlusCircle" className="w-5 h-5 mr-2" />
                 List Property
               </button>
@@ -128,8 +191,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Main Feature Section */}
-      <section className="py-12 md:py-16 lg:py-20">
+{/* Main Feature Section */}
+      <section id="main-feature-section" className="py-12 md:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <MainFeature />
         </div>
@@ -230,7 +293,158 @@ const Home = () => {
             <p>&copy; 2024 PropSpot. All rights reserved. Built with ❤️ for property seekers.</p>
           </div>
         </div>
-      </footer>
+</footer>
+
+      {/* Property Listing Modal */}
+      {showListModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div 
+            className="bg-white dark:bg-surface-800 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                List Your Property
+              </h2>
+              <button 
+                onClick={closeModal}
+                className="p-2 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
+              >
+                <ApperIcon name="X" className="w-5 h-5 text-surface-600 dark:text-surface-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitProperty} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  Property Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={propertyForm.title}
+                  onChange={handleFormChange}
+                  className="input-field"
+                  placeholder="Beautiful 3BR house in downtown"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Price
+                  </label>
+                  <input
+                    type="text"
+                    name="price"
+                    value={propertyForm.price}
+                    onChange={handleFormChange}
+                    className="input-field"
+                    placeholder="$450,000"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={propertyForm.location}
+                    onChange={handleFormChange}
+                    className="input-field"
+                    placeholder="New York, NY"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Bedrooms
+                  </label>
+                  <input
+                    type="number"
+                    name="bedrooms"
+                    value={propertyForm.bedrooms}
+                    onChange={handleFormChange}
+                    className="input-field"
+                    placeholder="3"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Bathrooms
+                  </label>
+                  <input
+                    type="number"
+                    name="bathrooms"
+                    value={propertyForm.bathrooms}
+                    onChange={handleFormChange}
+                    className="input-field"
+                    placeholder="2"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Area (sq ft)
+                  </label>
+                  <input
+                    type="number"
+                    name="area"
+                    value={propertyForm.area}
+                    onChange={handleFormChange}
+                    className="input-field"
+                    placeholder="1500"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={propertyForm.description}
+                  onChange={handleFormChange}
+                  rows={4}
+                  className="input-field resize-none"
+                  placeholder="Describe your property features, amenities, and highlights..."
+                  required
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary flex-1"
+                >
+                  List Property
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
