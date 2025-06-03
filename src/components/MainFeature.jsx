@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { toast } from 'react-toastify'
 import ApperIcon from './ApperIcon'
-
 const MainFeature = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
@@ -304,12 +302,10 @@ return `$${price.toLocaleString()}/mo`
 
   const toggleSaveProperty = (propertyId) => {
     const newSaved = new Set(savedProperties)
-    if (newSaved.has(propertyId)) {
+if (newSaved.has(propertyId)) {
       newSaved.delete(propertyId)
-      toast.success('Property removed from favorites')
     } else {
       newSaved.add(propertyId)
-      toast.success('Property saved to favorites')
     }
     setSavedProperties(newSaved)
   }
@@ -369,28 +365,21 @@ const handleInquirySubmit = (e) => {
         propertyInterest: 'general',
         message: '',
         propertyId: null,
-        propertyTitle: ''
-      })
+})
       setInquiryErrors({})
       setShowInquiryForm(false)
-      
-      toast.success('Inquiry sent successfully! We will contact you soon.')
-    } else {
-      toast.error('Please correct the errors in the form')
     }
   }
 
   const toggleFavoritesView = () => {
     setShowFavorites(!showFavorites)
   }
-
-  const removeFavorite = (propertyId) => {
+const removeFavorite = (propertyId) => {
     const newSaved = new Set(savedProperties)
     newSaved.delete(propertyId)
     setSavedProperties(newSaved)
-    toast.success('Property removed from favorites')
   }
-
+  const handleInquiry = (property) => {
   const handleInquiry = (property) => {
     setInquiryForm(prev => ({
       ...prev,
@@ -417,14 +406,12 @@ const removeFromComparison = (propertyId) => {
     }
 }
 
-  // 360-degree gallery handlers
+// 360-degree gallery handlers
   const handleGalleryOpen = () => {
     setShowGallery(true)
     setGalleryRotation(0)
     setCurrentGalleryImageIndex(0)
-    toast.success('360° Gallery opened')
   }
-
   const handleGalleryClose = () => {
     setShowGallery(false)
     setIsDragging(false)
@@ -459,19 +446,16 @@ const removeFromComparison = (propertyId) => {
   }
 
   // Add click handler to add properties to comparison
-  const addToComparison = (propertyId) => {
+const addToComparison = (propertyId) => {
     if (comparedProperties.size >= 4) {
-      toast.warning('You can compare up to 4 properties at a time')
       return
     }
     
     const newCompared = new Set(comparedProperties)
     if (newCompared.has(propertyId)) {
       newCompared.delete(propertyId)
-      toast.success('Property removed from comparison')
 } else {
       newCompared.add(propertyId)
-      toast.success('Property added to comparison')
     }
     setComparedProperties(newCompared)
   }
@@ -514,62 +498,44 @@ const removeFromComparison = (propertyId) => {
   };
 
   // Share property
-  const handleShare = async (property) => {
+const handleShare = async (property) => {
     const url = `${window.location.origin}/?property=${property.id}`;
     const success = await copyToClipboard(url);
-    
-    if (success) {
-      toast.success('Property link copied to clipboard!');
-    } else {
-      toast.error('Unable to copy automatically. Please copy this link manually: ' + url);
-    }
   };
-
   // Copy property details
   const handleCopyDetails = async (property) => {
     const details = `🏠 ${property.title}
 💰 ${formatPrice(property.price, property.listingType)}
 📍 ${property.address.street}, ${property.address.city}, ${property.address.state}
-🏠 ${property.bedrooms} bed, ${property.bathrooms} bath
 📐 ${property.squareFootage.toLocaleString()} sqft`;
     
     const success = await copyToClipboard(details);
-    
-    if (success) {
-      toast.success('Property details copied to clipboard!');
-    } else {
-toast.error('Failed to copy details. Please copy manually.');
-    }
   };
 
+  // Saved search functions
   // Saved search functions
   const executeSavedSearch = (search) => {
     setSearchQuery(search.searchQuery || '')
     setSelectedFilter(search.selectedFilter || 'all')
-    setPropertyType(search.propertyType || 'all')
+setPropertyType(search.propertyType || 'all')
     setBedrooms(search.bedrooms || 'any')
     setPriceRange(search.priceRange || [0, 1000000])
     setSortBy(search.sortBy || 'price-low')
     setShowSavedSearches(false)
-    toast.success(`Applied saved search: ${search.name}`)
   }
 
   const editSavedSearchName = (searchId) => {
     const search = savedSearches.find(s => s.id === searchId)
     if (!search) return
     
-    const newName = prompt('Enter new name for this search:', search.name)
+const newName = prompt('Enter new name for this search:', search.name)
     if (newName && newName.trim()) {
       setSavedSearches(prev => prev.map(s => 
         s.id === searchId ? { ...s, name: newName.trim() } : s
       ))
-      toast.success('Search renamed successfully')
     }
-  }
-
-  const deleteSavedSearch = (searchId) => {
+const deleteSavedSearch = (searchId) => {
     setSavedSearches(prev => prev.filter(s => s.id !== searchId))
-    toast.success('Saved search deleted')
   }
 
   const propertyMatchesSavedSearch = (property, search) => {
@@ -604,10 +570,7 @@ const matchesFilter = search.selectedFilter === 'all' || property.listingType ==
         
         if (matchingProperties.length > 0 && notificationSettings.enabled) {
           // Simulate new property notification
-          const newPropertyCount = Math.floor(Math.random() * 3)
-          if (newPropertyCount > 0) {
-            toast.info(`${newPropertyCount} new properties match your saved search "${search.name}"`)
-          }
+const newPropertyCount = Math.floor(Math.random() * 3)
         }
       })
     }
@@ -907,9 +870,9 @@ const matchesFilter = search.selectedFilter === 'all' || property.listingType ==
                     >
                       {amenity}
                     </span>
-                  ))}
+))}
                   {property.amenities.length > 3 && (
-<span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
+                    <span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
                       +{property.amenities.length - 3} more
                     </span>
                   )}
@@ -995,10 +958,9 @@ comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary
             >
               <div className="relative">
                 {/* Close Button */}
-                <button
+<button
                   onClick={() => setSelectedProperty(null)}
                   className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200"
-className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200"
                 >
                   <ApperIcon name="X" className="w-5 h-5" />
                 </button>
@@ -1338,21 +1300,19 @@ onWheel={handleWheel}
                 </div>
               </div>
             </div>
-
-            {/* Gallery Navigation */}
+{/* Gallery Navigation */}
             <div className="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/50 to-transparent">
-<div className="flex justify-center items-center space-x-4">
+              <div className="flex justify-center items-center space-x-4">
                 <div className="flex space-x-2 bg-black/30 rounded-full p-2 backdrop-blur-sm">
                   {selectedProperty.images.map((image, index) => (
                     <button
                       key={index}
                       className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                        index === currentGalleryImageIndex ? 'border-white scale-110' : 'border-white/30 hover:border-white/60'
+index === currentGalleryImageIndex ? 'border-white scale-110' : 'border-white/30 hover:border-white/60'
                       }`}
                       onClick={() => {
                         setCurrentGalleryImageIndex(index)
                         setGalleryRotation(0) // Reset rotation when switching views
-                        toast.success(`Switched to view ${index + 1}`)
                       }}
                     >
                       <img 
@@ -1368,13 +1328,12 @@ onWheel={handleWheel}
               {/* Controls */}
               <div className="flex justify-center items-center mt-4 space-x-4">
                 <button
-                  onClick={() => setGalleryRotation(0)}
+onClick={() => setGalleryRotation(0)}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
                 >
-<ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
+                  <ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
                   Reset View
                 </button>
-                
                 <button
                   onClick={async () => {
                     // Try native sharing first
@@ -1389,15 +1348,10 @@ onWheel={handleWheel}
                       } catch (err) {
                         // User cancelled or sharing failed, fall back to clipboard
                       }
-                    }
+}
                     
                     // Fallback to clipboard
                     const success = await copyToClipboard(window.location.href);
-                    if (success) {
-                      toast.success('Gallery link copied to clipboard!');
-                    } else {
-                      toast.error('Unable to share. Please copy the URL manually.');
-                    }
                   }}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
                 >
@@ -1408,7 +1362,6 @@ onWheel={handleWheel}
                 <button
                   onClick={() => {
                     // Download current view
-                    toast.success('Downloading 360° view...')
                   }}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
                 >
@@ -1619,9 +1572,9 @@ onWheel={handleWheel}
                               </span>
                             ))}
                           </div>
-                        </td>
+</td>
                       ))}
-</tr>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -1665,9 +1618,9 @@ onWheel={handleWheel}
             className="btn-secondary flex items-center space-x-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-          >
+>
             <ApperIcon name="Heart" className="w-4 h-4" />
-<span>View Favorites ({savedProperties.size})</span>
+            <span>View Favorites ({savedProperties.size})</span>
           </motion.button>
         </div>
       </div>
@@ -1788,11 +1741,9 @@ onWheel={handleWheel}
                     </motion.div>
                   ))}
               </motion.div>
-            )}
 )}
           </div>
         ) : null}
-
       {/* Saved Searches Modal */}
       <AnimatePresence>
         {showSavedSearches && (
@@ -1884,11 +1835,10 @@ onWheel={handleWheel}
                     </h3>
                     <p className="text-surface-600 dark:text-surface-300 mb-6">
                       Apply some search filters and save your search to get started.
-                    </p>
+</p>
                     <button
                       onClick={() => {
                         setShowSavedSearches(false)
-                        toast.info('Apply search filters and click "Save Search" to create your first saved search')
                       }}
                       className="btn-primary"
                     >
@@ -2015,11 +1965,10 @@ onWheel={handleWheel}
                       </div>
                     </div>
                     
-                    <button
+<button
                       onClick={() => {
                         if (window.confirm('Delete all saved searches?')) {
                           setSavedSearches([])
-                          toast.success('All saved searches deleted')
                         }
                       }}
                       className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors text-sm"
