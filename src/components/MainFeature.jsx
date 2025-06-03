@@ -19,8 +19,9 @@ const [showFilters, setShowFilters] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
 const [comparedProperties, setComparedProperties] = useState(new Set())
   const [showCalendar, setShowCalendar] = useState(false)
-  const [showGallery, setShowGallery] = useState(false)
+const [showGallery, setShowGallery] = useState(false)
   const [galleryRotation, setGalleryRotation] = useState(0)
+  const [currentGalleryImageIndex, setCurrentGalleryImageIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [appointmentForm, setAppointmentForm] = useState({
@@ -223,10 +224,11 @@ newCompared.delete(propertyId)
     }
   }
 
-  // 360-degree gallery handlers
+// 360-degree gallery handlers
   const handleGalleryOpen = () => {
     setShowGallery(true)
     setGalleryRotation(0)
+    setCurrentGalleryImageIndex(0)
     toast.success('360° Gallery opened')
   }
 
@@ -234,8 +236,8 @@ newCompared.delete(propertyId)
     setShowGallery(false)
     setIsDragging(false)
     setGalleryRotation(0)
+    setCurrentGalleryImageIndex(0)
   }
-
   const handleMouseDown = (e) => {
     setIsDragging(true)
     setDragStart({ x: e.clientX, y: e.clientY })
@@ -981,16 +983,15 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
               onMouseDown={handleMouseDown}
               onWheel={handleWheel}
             >
-              <div 
-                className="w-full h-full bg-cover bg-center transition-transform duration-100 ease-out"
+<div 
+                className="w-full h-full bg-cover bg-center transition-all duration-300 ease-out"
                 style={{
-                  backgroundImage: `url(${selectedProperty.images[0]})`,
+                  backgroundImage: `url(${selectedProperty.images[currentGalleryImageIndex]})`,
                   transform: `translateX(${-galleryRotation}px)`,
                   backgroundSize: `${200 + Math.abs(galleryRotation) * 0.1}% cover`,
                   backgroundPosition: `${50 + galleryRotation * 0.1}% center`
                 }}
               />
-              
               {/* Rotation Indicator */}
               <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
                 <div className="bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
@@ -1004,14 +1005,15 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
             <div className="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/50 to-transparent">
               <div className="flex justify-center items-center space-x-4">
                 <div className="flex space-x-2 bg-black/30 rounded-full p-2 backdrop-blur-sm">
-                  {selectedProperty.images.map((image, index) => (
+{selectedProperty.images.map((image, index) => (
                     <button
                       key={index}
                       className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                        index === 0 ? 'border-white' : 'border-white/30 hover:border-white/60'
+                        index === currentGalleryImageIndex ? 'border-white scale-110' : 'border-white/30 hover:border-white/60'
                       }`}
                       onClick={() => {
-                        // Switch to different image for 360 view
+                        setCurrentGalleryImageIndex(index)
+                        setGalleryRotation(0) // Reset rotation when switching views
                         toast.success(`Switched to view ${index + 1}`)
                       }}
                     >
