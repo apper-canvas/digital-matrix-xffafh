@@ -305,22 +305,23 @@ const mockProperties = [
     }
   })
 
-  const formatPrice = (price, listingType) => {
+const formatPrice = (price, listingType) => {
     if (listingType === 'rent') {
-return `$${price.toLocaleString()}/mo`
+      return `$${price.toLocaleString()}/mo`
     }
     return `$${price.toLocaleString()}`
   }
 
   // Initialize saved properties state
-// Initialize saved properties state
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState('grid')
+  const [previousViewMode, setPreviousViewMode] = useState('grid')
   const [mapCenter, setMapCenter] = useState({ lat: 39.8283, lng: -98.5795 }) // Center of US
+  
   const toggleSaveProperty = (propertyId) => {
     const newSaved = new Set(savedProperties)
-if (newSaved.has(propertyId)) {
+    if (newSaved.has(propertyId)) {
       newSaved.delete(propertyId)
     } else {
       newSaved.add(propertyId)
@@ -681,11 +682,16 @@ const newPropertyCount = Math.floor(Math.random() * 3)
                 }`}
               >
                 <ApperIcon name="List" className="w-5 h-5" />
-              </button>
+</button>
               <button
-                onClick={() => setViewMode('map')}
+                onClick={() => {
+                  if (viewMode !== 'map') {
+                    setPreviousViewMode(viewMode)
+                  }
+                  setViewMode('map')
+                }}
                 className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                  viewMode === 'map' 
+                  viewMode === 'map'
                     ? 'border-primary bg-primary/10 text-primary' 
                     : 'border-surface-200 text-surface-600 hover:border-surface-300'
                 }`}
@@ -802,13 +808,21 @@ const newPropertyCount = Math.floor(Math.random() * 3)
 
       {/* Properties Grid/List */}
 {/* Properties Grid/List/Map */}
-      {viewMode === 'map' ? (
+{viewMode === 'map' ? (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="map-container"
+          className="map-container relative"
         >
+          {/* Map Close Button */}
+          <button
+            onClick={() => setViewMode(previousViewMode)}
+            className="absolute top-4 right-4 z-[1000] p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200 border border-surface-200"
+          >
+            <ApperIcon name="X" className="w-5 h-5 text-surface-600" />
+          </button>
+          
           <MapContainer 
             center={mapCenter} 
             zoom={4} 
