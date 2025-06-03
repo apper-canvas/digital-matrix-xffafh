@@ -9,23 +9,9 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-surface-50 via-blue-50/30 to-green-50/20">
         <Routes>
-          <Route path="/" element={<Home />} />
+<Route path="/" element={<Home />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          className="toast-container"
-          toastClassName="toast-custom"
-        />
       </div>
     </Router>
   )

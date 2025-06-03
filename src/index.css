@@ -90,15 +90,6 @@
   @apply bg-surface-400;
 }
 
-/* Toast customization */
-.toast-container {
-  @apply font-sans;
-}
-
-.toast-custom {
-  @apply rounded-xl shadow-soft border border-surface-200/50;
-}
-
 /* Responsive image aspect ratios */
 .aspect-property {
   aspect-ratio: 16 / 10;
