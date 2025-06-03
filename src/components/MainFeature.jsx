@@ -273,8 +273,69 @@ const handleInquiry = (property) => {
       newCompared.add(propertyId)
       toast.success('Property added to comparison')
     }
-    setComparedProperties(newCompared)
+setComparedProperties(newCompared)
   }
+
+  // Utility function for clipboard operations with fallback
+  const copyToClipboard = async (text) => {
+    try {
+      // Try modern Clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } else {
+        // Fallback to legacy method
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const result = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (!result) {
+          throw new Error('Copy command failed');
+        }
+        return true;
+      }
+    } catch (err) {
+      console.error('Clipboard operation failed:', err);
+      return false;
+    }
+  };
+
+  // Share property
+  const handleShare = async (property) => {
+    const url = `${window.location.origin}/?property=${property.id}`;
+    const success = await copyToClipboard(url);
+    
+    if (success) {
+      toast.success('Property link copied to clipboard!');
+    } else {
+      toast.error('Failed to copy link. Please copy manually: ' + url);
+    }
+  };
+
+  // Copy property details
+  const handleCopyDetails = async (property) => {
+    const details = `🏠 ${property.title}
+💰 ${formatPrice(property.price, property.listingType)}
+📍 ${property.address.street}, ${property.address.city}, ${property.address.state}
+🏠 ${property.bedrooms} bed, ${property.bathrooms} bath
+📐 ${property.squareFootage.toLocaleString()} sqft`;
+    
+    const success = await copyToClipboard(details);
+    
+    if (success) {
+      toast.success('Property details copied to clipboard!');
+    } else {
+      toast.error('Failed to copy details. Please copy manually.');
+    }
+  };
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -343,7 +404,7 @@ const handleInquiry = (property) => {
           </div>
         </div>
 
-        {/* Advanced Filters */}
+{/* Advanced Filters */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -351,66 +412,68 @@ const handleInquiry = (property) => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-surface-200 pt-6"
+              className="mt-4 p-4 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700"
             >
-              <div>
-                <label className="block text-sm font-medium text-surface-700 mb-2">Property Type</label>
-                <select
-                  value={propertyType}
-                  onChange={(e) => setPropertyType(e.target.value)}
-                  className="input-field h-10"
-                >
-                  <option value="all">All Types</option>
-                  <option value="house">House</option>
-                  <option value="apartment">Apartment</option>
-                  <option value="studio">Studio</option>
-                  <option value="condo">Condo</option>
-                </select>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-2">Property Type</label>
+                  <select
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value)}
+                    className="input-field h-10"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="house">House</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="studio">Studio</option>
+                    <option value="condo">Condo</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-surface-700 mb-2">Bedrooms</label>
-                <select
-                  value={bedrooms}
-                  onChange={(e) => setBedrooms(e.target.value)}
-                  className="input-field h-10"
-                >
-                  <option value="any">Any</option>
-                  <option value="0">Studio</option>
-                  <option value="1+">1+</option>
-                  <option value="2+">2+</option>
-                  <option value="3+">3+</option>
-                  <option value="4+">4+</option>
-                </select>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-2">Bedrooms</label>
+                  <select
+                    value={bedrooms}
+                    onChange={(e) => setBedrooms(e.target.value)}
+                    className="input-field h-10"
+                  >
+                    <option value="any">Any</option>
+                    <option value="0">Studio</option>
+                    <option value="1+">1+</option>
+                    <option value="2+">2+</option>
+                    <option value="3+">3+</option>
+                    <option value="4+">4+</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-surface-700 mb-2">Sort By</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="input-field h-10"
-                >
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="size-large">Size: Large to Small</option>
-                  <option value="size-small">Size: Small to Large</option>
-                </select>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-2">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="input-field h-10"
+                  >
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="size-large">Size: Large to Small</option>
+                    <option value="size-small">Size: Small to Large</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-surface-700 mb-2">
-                  Price Range: ${priceRange[0].toLocaleString()} - ${priceRange[1].toLocaleString()}
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="2000000"
-                  step="50000"
-                  value={priceRange[1]}
-                  onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                  className="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer slider"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-2">
+                    Price Range: ${priceRange[0].toLocaleString()} - ${priceRange[1].toLocaleString()}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000000"
+                    step="50000"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    className="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
               </div>
             </motion.div>
           )}
