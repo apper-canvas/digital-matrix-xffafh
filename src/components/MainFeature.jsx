@@ -1015,10 +1015,159 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                           {amenity}
                         </span>
                       ))}
+</div>
+                  </div>
+
+                  {/* Agent/Seller Contact Information */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">
+                      Contact Information
+                    </h3>
+                    
+                    <div className="bg-surface-50 dark:bg-surface-900 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
+                      <div className="flex flex-col sm:flex-row gap-6">
+                        {/* Agent Photo and Basic Info */}
+                        <div className="flex-shrink-0">
+                          <img
+                            src={selectedProperty.agent.photo}
+                            alt={selectedProperty.agent.name}
+                            className="w-20 h-20 rounded-full object-cover border-3 border-primary/20"
+                          />
+                        </div>
+                        
+                        {/* Agent Details */}
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <h4 className="text-xl font-semibold text-surface-900 dark:text-white">
+                              {selectedProperty.agent.name}
+                            </h4>
+                            <p className="text-primary font-medium">{selectedProperty.agent.title}</p>
+                            <p className="text-surface-600 dark:text-surface-300 text-sm">
+                              {selectedProperty.agent.company}
+                            </p>
+                          </div>
+                          
+                          {/* Agent Stats */}
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Star" className="w-4 h-4 text-yellow-500 fill-current" />
+                              <span className="font-medium text-surface-900 dark:text-white">
+                                {selectedProperty.agent.rating}
+                              </span>
+                              <span className="text-surface-600 dark:text-surface-400">
+                                ({selectedProperty.agent.totalReviews} reviews)
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Clock" className="w-4 h-4 text-green-500" />
+                              <span className="text-surface-600 dark:text-surface-300">
+                                Responds {selectedProperty.agent.responseTime}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span className="text-surface-600 dark:text-surface-300">
+                                {selectedProperty.agent.availability}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Agent Bio */}
+                          <p className="text-surface-600 dark:text-surface-300 text-sm">
+                            {selectedProperty.agent.bio}
+                          </p>
+                          
+                          {/* Specialties */}
+                          <div>
+                            <span className="text-xs font-medium text-surface-700 dark:text-surface-300 mb-2 block">
+                              SPECIALTIES
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedProperty.agent.specialties.map((specialty) => (
+                                <span
+                                  key={specialty}
+                                  className="px-2 py-1 bg-primary/10 text-primary rounded-lg text-xs font-medium"
+                                >
+                                  {specialty}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Contact Actions */}
+                      <div className="mt-6 pt-6 border-t border-surface-200 dark:border-surface-700">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <a
+                            href={`tel:${selectedProperty.agent.phone}`}
+                            className="btn-primary text-center py-3 text-sm"
+                          >
+                            <ApperIcon name="Phone" className="w-4 h-4 mr-2" />
+                            Call Now
+                          </a>
+                          <a
+                            href={`mailto:${selectedProperty.agent.email}?subject=Inquiry about ${selectedProperty.title}&body=Hi ${selectedProperty.agent.name},%0D%0A%0D%0AI'm interested in learning more about the property at ${selectedProperty.address.street}, ${selectedProperty.address.city}.%0D%0A%0D%0APlease contact me at your earliest convenience.%0D%0A%0D%0AThank you!`}
+                            className="btn-secondary text-center py-3 text-sm"
+                          >
+                            <ApperIcon name="Mail" className="w-4 h-4 mr-2" />
+                            Send Email
+                          </a>
+                          <button
+                            onClick={() => handleInquiry(selectedProperty)}
+                            className="btn-secondary py-3 text-sm"
+                          >
+                            <ApperIcon name="MessageSquare" className="w-4 h-4 mr-2" />
+                            Send Message
+                          </button>
+                        </div>
+                        
+                        {/* Agent Contact Details */}
+                        <div className="mt-4 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-600">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <ApperIcon name="Phone" className="w-4 h-4 text-surface-400" />
+                                <span className="text-surface-600 dark:text-surface-300">Phone:</span>
+                                <span className="text-surface-900 dark:text-white font-medium">
+                                  {selectedProperty.agent.phone}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <ApperIcon name="Mail" className="w-4 h-4 text-surface-400" />
+                                <span className="text-surface-600 dark:text-surface-300">Email:</span>
+                                <span className="text-surface-900 dark:text-white font-medium break-all">
+                                  {selectedProperty.agent.email}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <ApperIcon name="Briefcase" className="w-4 h-4 text-surface-400" />
+                                <span className="text-surface-600 dark:text-surface-300">Experience:</span>
+                                <span className="text-surface-900 dark:text-white font-medium">
+                                  {selectedProperty.agent.yearsExperience} years
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <ApperIcon name="Globe" className="w-4 h-4 text-surface-400" />
+                                <span className="text-surface-600 dark:text-surface-300">Languages:</span>
+                                <span className="text-surface-900 dark:text-white font-medium">
+                                  {selectedProperty.agent.languages.join(', ')}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-<div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <button
                       onClick={() => handleInquiry(selectedProperty)}
                       className="btn-primary flex-1"
@@ -1032,7 +1181,7 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                         savedProperties.has(selectedProperty.id) ? 'bg-red-50 border-red-200 text-red-600' : ''
                       }`}
                     >
-<ApperIcon 
+                    <ApperIcon 
                       name="Heart" 
                       className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-current' : ''}`} 
                     />
