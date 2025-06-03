@@ -393,8 +393,53 @@ toast.success('Property added to comparison')
     const matchesPrice = property.price >= search.priceRange[0] && property.price <= search.priceRange[1]
     const matchesFilter = search.selectedFilter === 'all' || property.listingType === search.selectedFilter
 
-    return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matchesFilter
+return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matchesFilter
   }
+
+  // Notification service function
+  const startNotificationService = () => {
+    if (window.propertyNotificationInterval) {
+      clearInterval(window.propertyNotificationInterval)
+    }
+
+    const checkForNewProperties = () => {
+      savedSearches.forEach(search => {
+        const matchingProperties = mockProperties.filter(property => 
+          propertyMatchesSavedSearch(property, search)
+        )
+        
+        if (matchingProperties.length > 0 && notificationSettings.enabled) {
+          // Simulate new property notification
+          const newPropertyCount = Math.floor(Math.random() * 3)
+          if (newPropertyCount > 0) {
+            toast.info(`${newPropertyCount} new properties match your saved search "${search.name}"`)
+          }
+        }
+      })
+    }
+
+    // Set up notification interval based on frequency
+    const intervalMs = {
+      immediate: 30000, // 30 seconds for demo
+      daily: 24 * 60 * 60 * 1000,
+      weekly: 7 * 24 * 60 * 60 * 1000
+    }[notificationSettings.frequency] || 24 * 60 * 60 * 1000
+
+    window.propertyNotificationInterval = setInterval(checkForNewProperties, intervalMs)
+  }
+
+  // Start notification service on component mount
+  useEffect(() => {
+    if (notificationSettings.enabled && savedSearches.length > 0) {
+      startNotificationService()
+    }
+    
+    return () => {
+      if (window.propertyNotificationInterval) {
+        clearInterval(window.propertyNotificationInterval)
+      }
+    }
+  }, [notificationSettings.enabled, savedSearches.length])
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -1507,7 +1552,7 @@ toast.success('Property added to comparison')
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+</div>
   )
 }
 
