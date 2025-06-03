@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import L from 'leaflet'
 import ApperIcon from './ApperIcon'
+
+// Fix for default markers in React-Leaflet
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+})
+
 const MainFeature = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
@@ -46,7 +57,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
   const [inquiryErrors, setInquiryErrors] = useState({})
   // Mock property data
 // Mock property data
-  const mockProperties = [
+const mockProperties = [
     {
       id: '1',
       title: 'Modern Downtown Apartment',
@@ -57,6 +68,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 2,
       squareFootage: 1200,
       address: { street: '123 Main St', city: 'New York', state: 'NY' },
+      coordinates: { lat: 40.7128, lng: -74.0060 },
       images: [
         'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop',
@@ -93,6 +105,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 3,
       squareFootage: 2800,
       address: { street: '456 Oak Ave', city: 'Los Angeles', state: 'CA' },
+      coordinates: { lat: 34.0522, lng: -118.2437 },
       images: [
         'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop',
@@ -129,6 +142,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 1,
       squareFootage: 650,
       address: { street: '789 Arts District', city: 'Chicago', state: 'IL' },
+      coordinates: { lat: 41.8781, lng: -87.6298 },
       images: [
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
@@ -164,6 +178,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 2,
       squareFootage: 2200,
       address: { street: '321 Maple Dr', city: 'Austin', state: 'TX' },
+      coordinates: { lat: 30.2672, lng: -97.7431 },
       images: [
         'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop',
@@ -199,6 +214,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 3,
       squareFootage: 1800,
       address: { street: '555 Sky Tower', city: 'Miami', state: 'FL' },
+      coordinates: { lat: 25.7617, lng: -80.1918 },
       images: [
         'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop',
@@ -235,6 +251,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       bathrooms: 1,
       squareFootage: 900,
       address: { street: '777 City Center', city: 'Seattle', state: 'WA' },
+      coordinates: { lat: 47.6062, lng: -122.3321 },
       images: [
         'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop',
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
@@ -259,7 +276,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         languages: ['English', 'Korean'],
         specialties: ['Downtown Rentals', 'Professional Housing', 'City Living']
       }
-}
+    }
   ]
 
   // Filter properties based on search criteria
@@ -296,10 +313,11 @@ return `$${price.toLocaleString()}/mo`
   }
 
   // Initialize saved properties state
+// Initialize saved properties state
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState('grid')
-
+  const [mapCenter, setMapCenter] = useState({ lat: 39.8283, lng: -98.5795 }) // Center of US
   const toggleSaveProperty = (propertyId) => {
     const newSaved = new Set(savedProperties)
 if (newSaved.has(propertyId)) {
@@ -643,7 +661,7 @@ const newPropertyCount = Math.floor(Math.random() * 3)
               <span className="hidden sm:inline">Filters</span>
             </button>
 
-            <div className="flex gap-2">
+<div className="flex gap-2">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-3 rounded-xl border-2 transition-all duration-200 ${
@@ -660,9 +678,19 @@ const newPropertyCount = Math.floor(Math.random() * 3)
                   viewMode === 'list' 
                     ? 'border-primary bg-primary/10 text-primary' 
                     : 'border-surface-200 text-surface-600 hover:border-surface-300'
-}`}
+                }`}
               >
                 <ApperIcon name="List" className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`p-3 rounded-xl border-2 transition-all duration-200 ${
+                  viewMode === 'map' 
+                    ? 'border-primary bg-primary/10 text-primary' 
+                    : 'border-surface-200 text-surface-600 hover:border-surface-300'
+                }`}
+              >
+                <ApperIcon name="MapPin" className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -773,142 +801,194 @@ const newPropertyCount = Math.floor(Math.random() * 3)
       </motion.div>
 
       {/* Properties Grid/List */}
-      <motion.div 
-        className={`grid gap-6 ${
-          viewMode === 'grid' 
-            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
-            : 'grid-cols-1'
-        }`}
-        layout
-      >
-        <AnimatePresence mode="popLayout">
-          {filteredProperties.map((property, index) => (
-            <motion.div
-              key={property.id}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className={`property-card group cursor-pointer ${
-                viewMode === 'list' ? 'flex flex-col sm:flex-row' : ''
-              }`}
-              onClick={() => setSelectedProperty(property)}
-            >
-              {/* Property Image */}
-              <div className={`relative overflow-hidden ${
-                viewMode === 'list' 
-                  ? 'sm:w-64 sm:flex-shrink-0 h-48 sm:h-auto' 
-                  : 'aspect-property'
-              }`}>
-                <img
-                  src={property.images[0]}
-                  alt={property.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Property Type Badge */}
-                <div className="absolute top-3 left-3">
-                  <span className="property-badge bg-white/90 text-surface-800">
-                    {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
-                  </span>
-                </div>
-
-                {/* Save Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleSaveProperty(property.id)
-                  }}
-                  className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
-                    savedProperties.has(property.id)
-                      ? 'bg-red-500 text-white'
-                      : 'bg-white/80 text-surface-600 hover:bg-white hover:text-red-500'
-                  }`}
-                >
-                  <ApperIcon 
-                    name="Heart" 
-                    className={`w-4 h-4 ${savedProperties.has(property.id) ? 'fill-current' : ''}`} 
-                  />
-                </button>
-              </div>
-
-              {/* Property Details */}
-              <div className={`p-4 md:p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg md:text-xl font-semibold text-surface-900 dark:text-white group-hover:text-primary transition-colors duration-200">
-                    {property.title}
-                  </h3>
-                  <span className="text-xl md:text-2xl font-bold text-primary ml-2">
-                    {formatPrice(property.price, property.listingType)}
-                  </span>
-                </div>
-
-                <p className="text-surface-600 dark:text-surface-300 mb-4 text-sm">
-                  {property.address.street}, {property.address.city}, {property.address.state}
-                </p>
-
-                <div className="flex flex-wrap gap-4 mb-4 text-sm text-surface-600 dark:text-surface-300">
-                  {property.bedrooms > 0 && (
-                    <div className="flex items-center">
-                      <ApperIcon name="Bed" className="w-4 h-4 mr-1" />
-                      {property.bedrooms} bed{property.bedrooms !== 1 ? 's' : ''}
+{/* Properties Grid/List/Map */}
+      {viewMode === 'map' ? (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="map-container"
+        >
+          <MapContainer 
+            center={mapCenter} 
+            zoom={4} 
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            {filteredProperties.map((property) => (
+              <Marker 
+                key={property.id}
+                position={[property.coordinates.lat, property.coordinates.lng]}
+              >
+                <Popup>
+                  <div className="map-marker-popup">
+                    <img 
+                      src={property.images[0]} 
+                      alt={property.title}
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                    <h3 className="property-title">{property.title}</h3>
+                    <p className="property-price">{formatPrice(property.price, property.listingType)}</p>
+                    <p className="property-address">
+                      {property.address.street}, {property.address.city}, {property.address.state}
+                    </p>
+                    <div className="property-details">
+                      {property.bedrooms > 0 && `${property.bedrooms} bed • `}
+                      {property.bathrooms} bath • {property.squareFootage.toLocaleString()} sqft
                     </div>
-                  )}
-                  <div className="flex items-center">
-                    <ApperIcon name="Bath" className="w-4 h-4 mr-1" />
-                    {property.bathrooms} bath{property.bathrooms !== 1 ? 's' : ''}
-                  </div>
-                  <div className="flex items-center">
-                    <ApperIcon name="Square" className="w-4 h-4 mr-1" />
-                    {property.squareFootage.toLocaleString()} sqft
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {property.amenities.slice(0, 3).map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full"
+                    <button
+                      onClick={() => setSelectedProperty(property)}
+                      className="w-full btn-primary text-xs py-1 mt-2"
                     >
-                      {amenity}
+                      View Details
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </motion.div>
+      ) : (
+        <motion.div 
+          className={`grid gap-6 ${
+            viewMode === 'grid' 
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+              : 'grid-cols-1'
+          }`}
+          layout
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredProperties.map((property, index) => (
+              <motion.div
+                key={property.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className={`property-card group cursor-pointer ${
+                  viewMode === 'list' ? 'flex flex-col sm:flex-row' : ''
+                }`}
+                onClick={() => setSelectedProperty(property)}
+              >
+                {/* Property Image */}
+                <div className={`relative overflow-hidden ${
+                  viewMode === 'list' 
+                    ? 'sm:w-64 sm:flex-shrink-0 h-48 sm:h-auto' 
+                    : 'aspect-property'
+                }`}>
+                  <img
+                    src={property.images[0]}
+                    alt={property.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  
+                  {/* Property Type Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className="property-badge bg-white/90 text-surface-800">
+                      {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
-))}
-                  {property.amenities.length > 3 && (
-                    <span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
-                      +{property.amenities.length - 3} more
-                    </span>
-                  )}
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleSaveProperty(property.id)
+                    }}
+                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
+                      savedProperties.has(property.id)
+                        ? 'bg-red-500 text-white'
+                        : 'bg-white/80 text-surface-600 hover:bg-white hover:text-red-500'
+                    }`}
+                  >
+                    <ApperIcon 
+                      name="Heart" 
+                      className={`w-4 h-4 ${savedProperties.has(property.id) ? 'fill-current' : ''}`} 
+                    />
+                  </button>
                 </div>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedProperty(property)
-                  }}
-                  className="w-full btn-primary text-sm py-2 group-hover:shadow-xl"
-                >
-                  View Details
-                  <ApperIcon name="ArrowRight" className="w-4 h-4 ml-2" />
-                </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    addToComparison(property.id)
-                  }}
-                  className={`w-full btn-secondary text-sm py-2 mt-2 ${
-comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary' : ''
-                  }`}
-                >
-                  <ApperIcon name="GitCompare" className="w-4 h-4 mr-2" />
-                  {comparedProperties.has(property.id) ? 'Remove from Compare' : 'Compare'}
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+                {/* Property Details */}
+                <div className={`p-4 md:p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-lg md:text-xl font-semibold text-surface-900 dark:text-white group-hover:text-primary transition-colors duration-200">
+                      {property.title}
+                    </h3>
+                    <span className="text-xl md:text-2xl font-bold text-primary ml-2">
+                      {formatPrice(property.price, property.listingType)}
+                    </span>
+                  </div>
+
+                  <p className="text-surface-600 dark:text-surface-300 mb-4 text-sm">
+                    {property.address.street}, {property.address.city}, {property.address.state}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4 mb-4 text-sm text-surface-600 dark:text-surface-300">
+                    {property.bedrooms > 0 && (
+                      <div className="flex items-center">
+                        <ApperIcon name="Bed" className="w-4 h-4 mr-1" />
+                        {property.bedrooms} bed{property.bedrooms !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                    <div className="flex items-center">
+                      <ApperIcon name="Bath" className="w-4 h-4 mr-1" />
+                      {property.bathrooms} bath{property.bathrooms !== 1 ? 's' : ''}
+                    </div>
+                    <div className="flex items-center">
+                      <ApperIcon name="Square" className="w-4 h-4 mr-1" />
+                      {property.squareFootage.toLocaleString()} sqft
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {property.amenities.slice(0, 3).map((amenity) => (
+                      <span
+                        key={amenity}
+                        className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full"
+                      >
+                        {amenity}
+                      </span>
+                    ))}
+                    {property.amenities.length > 3 && (
+                      <span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
+                        +{property.amenities.length - 3} more
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedProperty(property)
+                    }}
+                    className="w-full btn-primary text-sm py-2 group-hover:shadow-xl"
+                  >
+                    View Details
+                    <ApperIcon name="ArrowRight" className="w-4 h-4 ml-2" />
+                  </button>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      addToComparison(property.id)
+                    }}
+                    className={`w-full btn-secondary text-sm py-2 mt-2 ${
+                      comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary' : ''
+                    }`}
+                  >
+                    <ApperIcon name="GitCompare" className="w-4 h-4 mr-2" />
+                    {comparedProperties.has(property.id) ? 'Remove from Compare' : 'Compare'}
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
       {/* Empty State */}
       {filteredProperties.length === 0 && (
         <motion.div 
