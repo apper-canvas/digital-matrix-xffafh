@@ -15,17 +15,21 @@ const [sortBy, setSortBy] = useState('price-low')
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
-  const [selectedTime, setSelectedTime] = useState(null)
+const [selectedTime, setSelectedTime] = useState(null)
   const [showComparison, setShowComparison] = useState(false)
   const [comparedProperties, setComparedProperties] = useState(new Set())
   const [showCalendar, setShowCalendar] = useState(false)
+  const [showGallery, setShowGallery] = useState(false)
+  const [galleryRotation, setGalleryRotation] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [appointmentForm, setAppointmentForm] = useState({
     name: '',
     email: '',
     phone: '',
     message: ''
   })
-  // Mock property data
+// Mock property data
   const mockProperties = [
     {
       id: '1',
@@ -37,7 +41,13 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 2,
       squareFootage: 1200,
       address: { street: '123 Main St', city: 'New York', state: 'NY' },
-      images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop'
+      ],
       amenities: ['Pool', 'Gym', 'Parking', 'Concierge'],
       description: 'Stunning modern apartment in the heart of downtown with breathtaking city views.'
     },
@@ -51,7 +61,13 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 3,
       squareFootage: 2800,
       address: { street: '456 Oak Ave', city: 'Los Angeles', state: 'CA' },
-      images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop'
+      ],
       amenities: ['Garden', 'Garage', 'Pool', 'Security'],
       description: 'Beautiful family home with spacious rooms and a large backyard perfect for entertaining.'
     },
@@ -65,7 +81,12 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 1,
       squareFootage: 650,
       address: { street: '789 Arts District', city: 'Chicago', state: 'IL' },
-      images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop'
+      ],
       amenities: ['High Ceilings', 'Exposed Brick', 'Hardwood Floors'],
       description: 'Charming studio loft in the vibrant arts district with exposed brick walls.'
     },
@@ -79,7 +100,12 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 2,
       squareFootage: 2200,
       address: { street: '321 Maple Dr', city: 'Austin', state: 'TX' },
-      images: ['https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop'
+      ],
       amenities: ['Garage', 'Backyard', 'Fireplace', 'Updated Kitchen'],
       description: 'Perfect suburban home with modern updates and a beautiful backyard.'
     },
@@ -93,7 +119,13 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 3,
       squareFootage: 1800,
       address: { street: '555 Sky Tower', city: 'Miami', state: 'FL' },
-      images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop'
+      ],
       amenities: ['Ocean View', 'Balcony', 'Concierge', 'Spa', 'Valet'],
       description: 'Spectacular penthouse with panoramic ocean views and luxury amenities.'
     },
@@ -107,7 +139,12 @@ const [sortBy, setSortBy] = useState('price-low')
       bathrooms: 1,
       squareFootage: 900,
       address: { street: '777 City Center', city: 'Seattle', state: 'WA' },
-      images: ['https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop'],
+      images: [
+        'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&h=800&fit=crop',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop'
+      ],
       amenities: ['City View', 'Gym', 'Rooftop', 'Pet Friendly'],
       description: 'Modern apartment in the heart of the city with excellent amenities.'
     }
@@ -178,8 +215,67 @@ const handleInquiry = (property) => {
     setComparedProperties(newCompared)
     if (newCompared.size === 0) {
       setShowComparison(false)
-    }
+}
   }
+
+  // 360-degree gallery handlers
+  const handleGalleryOpen = () => {
+    setShowGallery(true)
+    setGalleryRotation(0)
+    toast.success('360° Gallery opened')
+  }
+
+  const handleGalleryClose = () => {
+    setShowGallery(false)
+    setIsDragging(false)
+    setGalleryRotation(0)
+  }
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true)
+    setDragStart({ x: e.clientX, y: e.clientY })
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return
+    
+    const deltaX = e.clientX - dragStart.x
+    const rotationSpeed = 0.5
+    const newRotation = galleryRotation + (deltaX * rotationSpeed)
+    
+    setGalleryRotation(newRotation)
+    setDragStart({ x: e.clientX, y: e.clientY })
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleWheel = (e) => {
+    e.preventDefault()
+    const zoomSpeed = 0.1
+    const delta = e.deltaY * -zoomSpeed
+    // Add zoom functionality here if needed
+  }
+
+  // Add click handler to add properties to comparison
+  const addToComparison = (propertyId) => {
+    if (comparedProperties.size >= 4) {
+      toast.warning('You can compare up to 4 properties at a time')
+      return
+    }
+    
+    const newCompared = new Set(comparedProperties)
+    if (newCompared.has(propertyId)) {
+      newCompared.delete(propertyId)
+      toast.success('Property removed from comparison')
+    } else {
+      newCompared.add(propertyId)
+      toast.success('Property added to comparison')
+    }
+    setComparedProperties(newCompared)
+  }
+
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Search and Filter Header */}
@@ -459,7 +555,7 @@ const handleInquiry = (property) => {
                   )}
                 </div>
 
-                <button
+<button
                   onClick={(e) => {
                     e.stopPropagation()
                     setSelectedProperty(property)
@@ -469,8 +565,21 @@ const handleInquiry = (property) => {
                   View Details
                   <ApperIcon name="ArrowRight" className="w-4 h-4 ml-2" />
                 </button>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    addToComparison(property.id)
+                  }}
+                  className={`w-full btn-secondary text-sm py-2 mt-2 ${
+                    comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary' : ''
+                  }`}
+                >
+                  <ApperIcon name="GitCompare" className="w-4 h-4 mr-2" />
+                  {comparedProperties.has(property.id) ? 'Remove from Compare' : 'Compare'}
+                </button>
               </div>
-            </motion.div>
+</motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
@@ -534,17 +643,29 @@ const handleInquiry = (property) => {
                   <ApperIcon name="X" className="w-5 h-5" />
                 </button>
 
-                {/* Property Image */}
-                <div className="aspect-property relative">
+{/* Property Image */}
+                <div className="aspect-property relative group">
                   <img
                     src={selectedProperty.images[0]}
                     alt={selectedProperty.title}
-                    className="w-full h-full object-cover rounded-t-2xl"
+                    className="w-full h-full object-cover rounded-t-2xl cursor-pointer"
+                    onClick={handleGalleryOpen}
                   />
                   <div className="absolute bottom-4 left-4">
                     <span className="property-badge bg-white/90 text-surface-800">
                       {selectedProperty.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
+                  </div>
+                  
+                  {/* Gallery Button Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 rounded-t-2xl flex items-center justify-center">
+                    <button
+                      onClick={handleGalleryOpen}
+                      className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 hover:bg-white text-surface-800 px-6 py-3 rounded-xl font-medium shadow-lg transform translate-y-2 group-hover:translate-y-0"
+                    >
+                      <ApperIcon name="Camera" className="w-5 h-5 mr-2" />
+                      View 360° Gallery
+                    </button>
                   </div>
                 </div>
 
@@ -648,17 +769,165 @@ const handleInquiry = (property) => {
                     >
                       <ApperIcon 
                         name="Heart" 
-                        className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-current' : ''}`} 
+className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-current' : ''}`} 
                       />
                       {savedProperties.has(selectedProperty.id) ? 'Saved' : 'Save Property'}
                     </button>
                   </div>
                 </div>
               </div>
-</motion.div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 360-Degree Gallery Modal */}
+      <AnimatePresence>
+        {showGallery && selectedProperty && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black z-[60] flex items-center justify-center"
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
+            {/* Gallery Header */}
+            <div className="absolute top-0 left-0 right-0 z-10 p-6 bg-gradient-to-b from-black/50 to-transparent">
+              <div className="flex justify-between items-center text-white">
+                <div>
+                  <h3 className="text-xl font-semibold">{selectedProperty.title}</h3>
+                  <p className="text-white/80 text-sm">360° Gallery View</p>
+                </div>
+                <button
+                  onClick={handleGalleryClose}
+                  className="p-3 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                >
+                  <ApperIcon name="X" className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* 360-Degree Image Container */}
+            <div 
+              className="relative w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
+              onMouseDown={handleMouseDown}
+              onWheel={handleWheel}
+            >
+              <div 
+                className="w-full h-full bg-cover bg-center transition-transform duration-100 ease-out"
+                style={{
+                  backgroundImage: `url(${selectedProperty.images[0]})`,
+                  transform: `translateX(${-galleryRotation}px)`,
+                  backgroundSize: `${200 + Math.abs(galleryRotation) * 0.1}% cover`,
+                  backgroundPosition: `${50 + galleryRotation * 0.1}% center`
+                }}
+              />
+              
+              {/* Rotation Indicator */}
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+                  <ApperIcon name="RotateCw" className="w-4 h-4 inline mr-2" />
+                  Drag to rotate • Scroll to zoom
+                </div>
+              </div>
+            </div>
+
+            {/* Gallery Navigation */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/50 to-transparent">
+              <div className="flex justify-center items-center space-x-4">
+                <div className="flex space-x-2 bg-black/30 rounded-full p-2 backdrop-blur-sm">
+                  {selectedProperty.images.map((image, index) => (
+                    <button
+                      key={index}
+                      className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                        index === 0 ? 'border-white' : 'border-white/30 hover:border-white/60'
+                      }`}
+                      onClick={() => {
+                        // Switch to different image for 360 view
+                        toast.success(`Switched to view ${index + 1}`)
+                      }}
+                    >
+                      <img 
+                        src={image} 
+                        alt={`View ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Controls */}
+              <div className="flex justify-center items-center mt-4 space-x-4">
+                <button
+                  onClick={() => setGalleryRotation(0)}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
+                >
+                  <ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
+                  Reset View
+                </button>
+                
+                <button
+                  onClick={() => {
+                    navigator.share?.({
+                      title: selectedProperty.title,
+                      text: `Check out this 360° view of ${selectedProperty.title}`,
+                      url: window.location.href
+                    }).catch(() => {
+                      navigator.clipboard?.writeText(window.location.href)
+                      toast.success('Link copied to clipboard')
+                    })
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
+                >
+                  <ApperIcon name="Share" className="w-4 h-4 mr-2" />
+                  Share
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Download current view
+                    toast.success('Downloading 360° view...')
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
+                >
+                  <ApperIcon name="Download" className="w-4 h-4 mr-2" />
+                  Download
+                </button>
+              </div>
+            </div>
+
+            {/* Loading Indicator */}
+            {isDragging && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                <div className="bg-black/50 text-white px-3 py-2 rounded-full text-sm backdrop-blur-sm">
+                  <ApperIcon name="Move" className="w-4 h-4 inline mr-2" />
+                  Rotating...
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Comparison Floating Button */}
+      {comparedProperties.size > 0 && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="fixed bottom-6 right-6 z-40"
+        >
+          <button
+            onClick={() => setShowComparison(true)}
+            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full shadow-2xl font-medium flex items-center space-x-2 transition-all hover:scale-105"
+          >
+            <ApperIcon name="GitCompare" className="w-5 h-5" />
+            <span>Compare ({comparedProperties.size})</span>
+          </button>
+        </motion.div>
+      )}
       {/* Property Comparison Modal */}
       <AnimatePresence>
         {showComparison && comparedProperties.size > 0 && (
@@ -857,9 +1126,9 @@ const handleInquiry = (property) => {
               </div>
             </motion.div>
           </motion.div>
-        )}
+)}
       </AnimatePresence>
-</div>
+    </div>
   )
 }
 
