@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .property-card {
+    @apply bg-white rounded-2xl shadow-property-card hover:shadow-xl transition-all duration-300 overflow-hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.3);
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 rounded-xl shadow-soft;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-primary-light text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-primary border-2 border-primary/20 px-6 py-3 rounded-xl font-semibold hover:bg-primary/5 hover:border-primary/40 transition-all duration-200;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-surface-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200 bg-white/80 backdrop-blur-sm;
+  }
+  
+  .search-bar {
+    @apply bg-white/90 backdrop-blur-md border border-white/30 rounded-2xl shadow-soft hover:shadow-card transition-all duration-300;
+  }
+  
+  .property-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20;
+  }
+  
+  .feature-icon {
+    @apply w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-primary shadow-neu-light;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-primary-light to-secondary bg-clip-text text-transparent;
+  }
+  
+  .bg-mesh {
+    background-image: radial-gradient(circle at 25% 25%, rgba(30, 64, 175, 0.05) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-surface-400;
+}
+
+/* Toast customization */
+.toast-container {
+  @apply font-sans;
+}
+
+.toast-custom {
+  @apply rounded-xl shadow-soft border border-surface-200/50;
+}
+
+/* Responsive image aspect ratios */
+.aspect-property {
+  aspect-ratio: 16 / 10;
+}
+
+/* Dark mode adjustments */
+.dark .property-card {
+  @apply bg-surface-800/90 border-surface-700/50;
+}
+
+.dark .glass-card {
+  @apply bg-surface-800/80 border-surface-700/30;
+}
+
+.dark .input-field {
+  @apply bg-surface-800/80 border-surface-700 text-white;
+}
+
+.dark .search-bar {
+  @apply bg-surface-800/90 border-surface-700/40;
+}
