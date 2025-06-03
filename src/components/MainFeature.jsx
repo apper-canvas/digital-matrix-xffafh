@@ -17,17 +17,23 @@ const [showFilters, setShowFilters] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
   const [showComparison, setShowComparison] = useState(false)
-  const [comparedProperties, setComparedProperties] = useState(new Set())
+const [comparedProperties, setComparedProperties] = useState(new Set())
   const [showCalendar, setShowCalendar] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
   const [galleryRotation, setGalleryRotation] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-const [appointmentForm, setAppointmentForm] = useState({
+  const [appointmentForm, setAppointmentForm] = useState({
     name: '',
     email: '',
     phone: '',
     message: ''
+  })
+  const [showSavedSearches, setShowSavedSearches] = useState(false)
+  const [savedSearches, setSavedSearches] = useState([])
+  const [notificationSettings, setNotificationSettings] = useState({
+    enabled: false,
+    frequency: 'daily'
   })
   // Mock property data
   const mockProperties = [
@@ -339,7 +345,56 @@ toast.success('Property added to comparison')
     } else {
       toast.error('Failed to copy details. Please copy manually.');
     }
-  };
+};
+
+  // Saved search functions
+  const executeSavedSearch = (search) => {
+    setSearchQuery(search.searchQuery || '')
+    setSelectedFilter(search.selectedFilter || 'all')
+    setPropertyType(search.propertyType || 'all')
+    setBedrooms(search.bedrooms || 'any')
+    setPriceRange(search.priceRange || [0, 1000000])
+    setSortBy(search.sortBy || 'price-low')
+    setShowSavedSearches(false)
+    toast.success(`Applied saved search: ${search.name}`)
+  }
+
+  const editSavedSearchName = (searchId) => {
+    const search = savedSearches.find(s => s.id === searchId)
+    if (!search) return
+    
+    const newName = prompt('Enter new name for this search:', search.name)
+    if (newName && newName.trim()) {
+      setSavedSearches(prev => prev.map(s => 
+        s.id === searchId ? { ...s, name: newName.trim() } : s
+      ))
+      toast.success('Search renamed successfully')
+    }
+  }
+
+  const deleteSavedSearch = (searchId) => {
+    setSavedSearches(prev => prev.filter(s => s.id !== searchId))
+    toast.success('Saved search deleted')
+  }
+
+  const propertyMatchesSavedSearch = (property, search) => {
+    const matchesSearch = !search.searchQuery || 
+      property.title.toLowerCase().includes(search.searchQuery.toLowerCase()) ||
+      property.address.city.toLowerCase().includes(search.searchQuery.toLowerCase())
+    
+    const matchesType = search.propertyType === 'all' || property.propertyType === search.propertyType
+    const matchesBedrooms = search.bedrooms === 'any' || 
+                           (search.bedrooms === '0' && property.bedrooms === 0) ||
+                           (search.bedrooms === '1+' && property.bedrooms >= 1) ||
+                           (search.bedrooms === '2+' && property.bedrooms >= 2) ||
+                           (search.bedrooms === '3+' && property.bedrooms >= 3) ||
+                           (search.bedrooms === '4+' && property.bedrooms >= 4)
+    
+    const matchesPrice = property.price >= search.priceRange[0] && property.price <= search.priceRange[1]
+    const matchesFilter = search.selectedFilter === 'all' || property.listingType === search.selectedFilter
+
+    return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matchesFilter
+  }
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -1203,6 +1258,252 @@ toast.success('Property added to comparison')
                 </div>
               </div>
 </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+{/* Saved Searches Modal */}
+      <AnimatePresence>
+        {showSavedSearches && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowSavedSearches(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-white dark:bg-surface-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                      Saved Searches
+                    </h2>
+                    <p className="text-surface-600 dark:text-surface-300 mt-1">
+                      Manage your saved property searches and notifications
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowSavedSearches(false)}
+                    className="p-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 rounded-xl transition-colors"
+                  >
+                    <ApperIcon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Notification Settings */}
+              <div className="p-6 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+                <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">
+                  Notification Settings
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="notifications-enabled"
+                      checked={notificationSettings.enabled}
+                      onChange={(e) => setNotificationSettings(prev => ({
+                        ...prev,
+                        enabled: e.target.checked
+                      }))}
+                      className="w-5 h-5 text-primary bg-surface-100 border-surface-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <label htmlFor="notifications-enabled" className="text-surface-900 dark:text-white font-medium">
+                      Enable Notifications
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Notification Frequency
+                    </label>
+                    <select
+                      value={notificationSettings.frequency}
+                      onChange={(e) => setNotificationSettings(prev => ({
+                        ...prev,
+                        frequency: e.target.value
+                      }))}
+                      disabled={!notificationSettings.enabled}
+                      className="input-field h-10 text-sm"
+                    >
+                      <option value="immediate">Immediate</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Saved Searches List */}
+              <div className="p-6">
+                {savedSearches.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center">
+                      <ApperIcon name="Search" className="w-8 h-8 text-surface-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-surface-900 dark:text-white mb-2">
+                      No Saved Searches
+                    </h3>
+                    <p className="text-surface-600 dark:text-surface-300 mb-6">
+                      Apply some search filters and save your search to get started.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setShowSavedSearches(false)
+                        toast.info('Apply search filters and click "Save Search" to create your first saved search')
+                      }}
+                      className="btn-primary"
+                    >
+                      <ApperIcon name="Filter" className="w-5 h-5 mr-2" />
+                      Start Searching
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {savedSearches.map((search) => (
+                      <motion.div
+                        key={search.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-card p-6 hover:shadow-lg transition-shadow"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <h4 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
+                              {search.name}
+                            </h4>
+                            
+                            <div className="space-y-2 text-sm text-surface-600 dark:text-surface-300">
+                              {search.searchQuery && (
+                                <div className="flex items-center">
+                                  <ApperIcon name="MapPin" className="w-4 h-4 mr-2" />
+                                  <span>Location: "{search.searchQuery}"</span>
+                                </div>
+                              )}
+                              
+                              <div className="flex flex-wrap gap-4">
+                                {search.selectedFilter !== 'all' && (
+                                  <div className="flex items-center">
+                                    <ApperIcon name="Tag" className="w-4 h-4 mr-1" />
+                                    <span>{search.selectedFilter === 'sale' ? 'For Sale' : 'For Rent'}</span>
+                                  </div>
+                                )}
+                                
+                                {search.propertyType !== 'all' && (
+                                  <div className="flex items-center">
+                                    <ApperIcon name="Home" className="w-4 h-4 mr-1" />
+                                    <span className="capitalize">{search.propertyType}</span>
+                                  </div>
+                                )}
+                                
+                                {search.bedrooms !== 'any' && (
+                                  <div className="flex items-center">
+                                    <ApperIcon name="Bed" className="w-4 h-4 mr-1" />
+                                    <span>{search.bedrooms === '0' ? 'Studio' : `${search.bedrooms} bedrooms`}</span>
+                                  </div>
+                                )}
+                                
+                                {(search.priceRange[0] !== 0 || search.priceRange[1] !== 1000000) && (
+                                  <div className="flex items-center">
+                                    <ApperIcon name="DollarSign" className="w-4 h-4 mr-1" />
+                                    <span>
+                                      ${search.priceRange[0].toLocaleString()} - ${search.priceRange[1].toLocaleString()}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center text-xs mt-3">
+                                <ApperIcon name="Calendar" className="w-3 h-3 mr-1" />
+                                <span>Created: {new Date(search.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <button
+                              onClick={() => executeSavedSearch(search)}
+                              className="btn-primary text-sm py-2 px-4"
+                            >
+                              <ApperIcon name="Play" className="w-4 h-4 mr-2" />
+                              Apply
+                            </button>
+                            
+                            <button
+                              onClick={() => editSavedSearchName(search.id)}
+                              className="btn-secondary text-sm py-2 px-4"
+                            >
+                              <ApperIcon name="Edit2" className="w-4 h-4 mr-2" />
+                              Edit
+                            </button>
+                            
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Delete saved search "${search.name}"?`)) {
+                                  deleteSavedSearch(search.id)
+                                }
+                              }}
+                              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-xl transition-colors text-sm"
+                            >
+                              <ApperIcon name="Trash2" className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Search Stats */}
+                        <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+                          <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
+                            <ApperIcon name="TrendingUp" className="w-3 h-3 mr-1" />
+                            <span>
+                              {filteredProperties.filter(property => propertyMatchesSavedSearch(property, search)).length} 
+                              {' properties currently match this search'}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              {savedSearches.length > 0 && (
+                <div className="p-6 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+                  <div className="flex flex-col sm:flex-row gap-3 justify-between">
+                    <div className="text-sm text-surface-600 dark:text-surface-300">
+                      <div className="flex items-center">
+                        <ApperIcon name="Bell" className="w-4 h-4 mr-2" />
+                        Notifications: {notificationSettings.enabled ? 'Enabled' : 'Disabled'}
+                        {notificationSettings.enabled && (
+                          <span className="ml-2 text-primary">
+                            ({notificationSettings.frequency})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Delete all saved searches?')) {
+                          setSavedSearches([])
+                          toast.success('All saved searches deleted')
+                        }
+                      }}
+                      className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors text-sm"
+                    >
+                      <ApperIcon name="Trash2" className="w-4 h-4 mr-2" />
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
