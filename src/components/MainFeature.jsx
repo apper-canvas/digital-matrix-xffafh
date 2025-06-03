@@ -10,16 +10,15 @@ const MainFeature = () => {
 const [bedrooms, setBedrooms] = useState('any')
   const [propertyType, setPropertyType] = useState('all')
   const [sortBy, setSortBy] = useState('price-low')
-  const [viewMode, setViewMode] = useState('grid')
-const [showFilters, setShowFilters] = useState(false)
-  const [savedProperties, setSavedProperties] = useState(new Set())
+  const [showModal, setShowModal] = useState(false)
   const [selectedProperty, setSelectedProperty] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(null)
-  const [selectedTime, setSelectedTime] = useState(null)
-  const [showComparison, setShowComparison] = useState(false)
-const [comparedProperties, setComparedProperties] = useState(new Set())
+  const [comparedProperties, setComparedProperties] = useState(new Set())
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [showGallery, setShowGallery] = useState(false)
+  const [galleryRotation, setGalleryRotation] = useState(0)
+  const [galleryZoom, setGalleryZoom] = useState(1)
   const [showCalendar, setShowCalendar] = useState(false)
-const [showGallery, setShowGallery] = useState(false)
+  const [showComparison, setShowComparison] = useState(false)
   const [galleryRotation, setGalleryRotation] = useState(0)
   const [currentGalleryImageIndex, setCurrentGalleryImageIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -201,8 +200,13 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
     if (listingType === 'rent') {
       return `$${price.toLocaleString()}/mo`
     }
-    return `$${price.toLocaleString()}`
+return `$${price.toLocaleString()}`
   }
+
+  // Initialize saved properties state
+  const [savedProperties, setSavedProperties] = useState(new Set())
+  const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState('grid')
 
   const toggleSaveProperty = (propertyId) => {
     const newSaved = new Set(savedProperties)
@@ -214,8 +218,9 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       toast.success('Property saved to favorites')
     }
     setSavedProperties(newSaved)
-}
-// Inquiry form validation
+  }
+
+  // Inquiry form validation
   const validateInquiryForm = () => {
     const errors = {}
     
@@ -241,15 +246,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
       errors.message = 'Message must be at least 10 characters long'
     }
     
-    return errors
+return errors
   }
 
-  // Handle inquiry form submission
   const handleInquirySubmit = (e) => {
     e.preventDefault()
-    
     const errors = validateInquiryForm()
-    setInquiryErrors(errors)
+    setShowFavorites(!showFavorites)
+  }
+
+  const removeFavorite = (propertyId) => {
+    const newSaved = new Set(savedProperties)
+    newSaved.delete(propertyId)
+    setSavedProperties(newSaved)
+    toast.success('Property removed from favorites')
+  }
+
+setInquiryErrors(errors)
     
     if (Object.keys(errors).length === 0) {
       const newInquiry = {
@@ -284,6 +297,21 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
     }
   }
 
+  const toggleFavoritesView = () => {
+    setShowFavorites(!showFavorites)
+  }
+
+  const removeFavorite = (propertyId) => {
+    const newSaved = new Set(savedProperties)
+    newSaved.delete(propertyId)
+    setSavedProperties(newSaved)
+    toast.success('Property removed from favorites')
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Search and Filter Section - removed duplicate content */}
+const handleInquiry = (property) => {
   const handleInquiry = (property) => {
     setInquiryForm(prev => ({
       ...prev,
@@ -593,9 +621,8 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                 <ApperIcon name="List" className="w-5 h-5" />
               </button>
             </div>
-          </div>
 </div>
-
+        </div>
         {/* Advanced Filters */}
         <AnimatePresence>
           {showFilters && (
@@ -1371,11 +1398,12 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                       ))}
                     </tr>
                   </tbody>
-                </table>
+</table>
               </div>
 
+              {/* Comparison Actions */}
               <div className="p-6 border-t border-surface-200 dark:border-surface-700">
-                <div className="flex flex-wrap gap-3 justify-center">
+                <div className="flex justify-center gap-4">
                   {getComparedPropertiesData().map((property) => (
                     <button
                       key={property.id}
@@ -1390,12 +1418,154 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                   ))}
                 </div>
               </div>
-</motion.div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-{/* Saved Searches Modal */}
-      <AnimatePresence>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex gap-3">
+          <motion.button
+            onClick={() => setShowSavedSearches(true)}
+            className="btn-secondary flex items-center space-x-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ApperIcon name="Bookmark" className="w-4 h-4" />
+            <span>Saved Searches ({savedSearches.length})</span>
+          </motion.button>
+          
+          <motion.button
+            onClick={toggleFavoritesView}
+            className="btn-secondary flex items-center space-x-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ApperIcon name="Heart" className="w-4 h-4" />
+            <span>View Favorites ({savedProperties.size})</span>
+          </motion.button>
+        </div>
+      </div>
+        {/* Favorites View */}
+        {showFavorites ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                Your Favorite Properties ({savedProperties.size})
+              </h2>
+              <motion.button
+                onClick={toggleFavoritesView}
+                className="btn-secondary flex items-center space-x-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ApperIcon name="ArrowLeft" className="w-4 h-4" />
+                <span>Back to Properties</span>
+              </motion.button>
+            </div>
+
+            {savedProperties.size === 0 ? (
+              <div className="text-center py-12">
+                <ApperIcon name="Heart" className="w-16 h-16 text-surface-300 dark:text-surface-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-surface-900 dark:text-white mb-2">
+                  No Favorite Properties Yet
+                </h3>
+                <p className="text-surface-600 dark:text-surface-400 mb-6">
+                  Start exploring and save properties you love to see them here.
+                </p>
+                <motion.button
+                  onClick={toggleFavoritesView}
+                  className="btn-primary"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Browse Properties
+                </motion.button>
+              </div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {mockProperties
+                  .filter(property => savedProperties.has(property.id))
+                  .map((property, index) => (
+                    <motion.div
+                      key={property.id}
+                      className="property-card group cursor-pointer"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                      onClick={() => {
+                        setSelectedProperty(property)
+                        setShowModal(true)
+                      }}
+                    >
+                      <div className="relative">
+                        <img 
+                          src={property.images[0]} 
+                          alt={property.title}
+                          className="w-full aspect-property object-cover rounded-lg mb-4"
+                        />
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            removeFavorite(property.id)
+                          }}
+                          className="absolute top-3 right-3 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <ApperIcon name="X" className="w-4 h-4" />
+                        </motion.button>
+                        <div className="absolute top-3 left-3">
+                          <span className="property-badge bg-primary text-white">
+                            {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-semibold text-surface-900 dark:text-white line-clamp-2">
+                          {property.title}
+                        </h3>
+                        
+                        <div className="flex items-center space-x-1 text-surface-600 dark:text-surface-400">
+                          <ApperIcon name="MapPin" className="w-4 h-4" />
+                          <span className="text-sm">{property.address.street}, {property.address.city}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-xl font-bold text-primary">
+                            {formatPrice(property.price, property.listingType)}
+                          </span>
+                          <div className="flex items-center space-x-3 text-surface-600 dark:text-surface-400 text-sm">
+                            {property.bedrooms > 0 && (
+                              <div className="flex items-center space-x-1">
+                                <ApperIcon name="Bed" className="w-4 h-4" />
+                                <span>{property.bedrooms}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Bath" className="w-4 h-4" />
+                              <span>{property.bathrooms}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Square" className="w-4 h-4" />
+                              <span>{property.squareFootage.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </motion.div>
+            )}
+          </div>
         {showSavedSearches && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -1549,44 +1719,260 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                                       ${search.priceRange[0].toLocaleString()} - ${search.priceRange[1].toLocaleString()}
                                     </span>
                                   </div>
-                                )}
+)}
                               </div>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <button
+                                onClick={() => executeSavedSearch(search)}
+                                className="btn-primary text-sm py-2 px-4"
+                              >
+                                <ApperIcon name="Search" className="w-4 h-4 mr-2" />
+                                Apply Search
+                              </button>
                               
-                              <div className="flex items-center text-xs mt-3">
-                                <ApperIcon name="Calendar" className="w-3 h-3 mr-1" />
-                                <span>Created: {new Date(search.createdAt).toLocaleDateString()}</span>
-                              </div>
+                              <button
+                                onClick={() => editSavedSearchName(search.id)}
+                                className="btn-secondary text-sm py-2 px-4"
+                              >
+                                <ApperIcon name="Edit2" className="w-4 h-4 mr-2" />
+                                Edit
+                              </button>
+                              
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Delete saved search "${search.name}"?`)) {
+                                    deleteSavedSearch(search.id)
+                                  }
+                                }}
+                                className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-xl transition-colors text-sm"
+                              >
+                                <ApperIcon name="Trash2" className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
                           
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <button
-                              onClick={() => executeSavedSearch(search)}
-                              className="btn-primary text-sm py-2 px-4"
-                            >
-                              <ApperIcon name="Play" className="w-4 h-4 mr-2" />
-                              Apply
-                            </button>
-                            
-                            <button
-                              onClick={() => editSavedSearchName(search.id)}
-                              className="btn-secondary text-sm py-2 px-4"
-                            >
-                              <ApperIcon name="Edit2" className="w-4 h-4 mr-2" />
-                              Edit
-                            </button>
-                            
-                            <button
-                              onClick={() => {
-                                if (window.confirm(`Delete saved search "${search.name}"?`)) {
-                                  deleteSavedSearch(search.id)
-                                }
-                              }}
-                              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-xl transition-colors text-sm"
-                            >
-                              <ApperIcon name="Trash2" className="w-4 h-4" />
-                            </button>
+                          {/* Search Stats */}
+                          <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+                            <div className="flex items-center text-xs text-surface-500 dark:text-surface-400">
+                              <ApperIcon name="TrendingUp" className="w-3 h-3 mr-1" />
+                              <span>
+                                {filteredProperties.filter(property => propertyMatchesSavedSearch(property, search)).length} 
+                                {' properties currently match this search'}
+                              </span>
+                            </div>
                           </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer Actions */}
+                {savedSearches.length > 0 && (
+                  <div className="p-6 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-between">
+                      <div className="text-sm text-surface-600 dark:text-surface-300">
+                        <div className="flex items-center">
+                          <ApperIcon name="Bell" className="w-4 h-4 mr-2" />
+                          Notifications: {notificationSettings.enabled ? 'Enabled' : 'Disabled'}
+                          {notificationSettings.enabled && (
+                            <span className="ml-2 text-primary">
+                              ({notificationSettings.frequency})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Delete all saved searches?')) {
+                            setSavedSearches([])
+                            toast.success('All saved searches deleted')
+                          }
+                        }}
+                        className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors text-sm"
+                      >
+                        <ApperIcon name="Trash2" className="w-4 h-4 mr-2" />
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Favorites View */}
+        {showFavorites ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                Your Favorite Properties ({savedProperties.size})
+              </h2>
+              <motion.button
+                onClick={toggleFavoritesView}
+                className="btn-secondary flex items-center space-x-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ApperIcon name="ArrowLeft" className="w-4 h-4" />
+                <span>Back to Properties</span>
+              </motion.button>
+            </div>
+
+            {savedProperties.size === 0 ? (
+              <div className="text-center py-12">
+                <ApperIcon name="Heart" className="w-16 h-16 text-surface-300 dark:text-surface-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-surface-900 dark:text-white mb-2">
+                  No Favorite Properties Yet
+                </h3>
+                <p className="text-surface-600 dark:text-surface-400 mb-6">
+                  Start exploring and save properties you love to see them here.
+                </p>
+                <motion.button
+                  onClick={toggleFavoritesView}
+                  className="btn-primary"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Browse Properties
+                </motion.button>
+              </div>
+            ) : (
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {mockProperties
+                  .filter(property => savedProperties.has(property.id))
+                  .map((property, index) => (
+                    <motion.div
+                      key={property.id}
+                      className="property-card group cursor-pointer"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                      onClick={() => {
+                        setSelectedProperty(property)
+                        setShowModal(true)
+                      }}
+                    >
+                      <div className="relative">
+                        <img 
+                          src={property.images[0]} 
+                          alt={property.title}
+                          className="w-full aspect-property object-cover rounded-lg mb-4"
+                        />
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            removeFavorite(property.id)
+                          }}
+                          className="absolute top-3 right-3 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <ApperIcon name="X" className="w-4 h-4" />
+                        </motion.button>
+                        <div className="absolute top-3 left-3">
+                          <span className="property-badge bg-primary text-white">
+                            {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-semibold text-surface-900 dark:text-white line-clamp-2">
+                          {property.title}
+                        </h3>
+                        
+                        <div className="flex items-center space-x-1 text-surface-600 dark:text-surface-400">
+                          <ApperIcon name="MapPin" className="w-4 h-4" />
+                          <span className="text-sm">{property.address.street}, {property.address.city}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-xl font-bold text-primary">
+                            {formatPrice(property.price, property.listingType)}
+                          </span>
+                          <div className="flex items-center space-x-3 text-surface-600 dark:text-surface-400 text-sm">
+                            {property.bedrooms > 0 && (
+                              <div className="flex items-center space-x-1">
+                                <ApperIcon name="Bed" className="w-4 h-4" />
+                                <span>{property.bedrooms}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Bath" className="w-4 h-4" />
+                              <span>{property.bathrooms}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <ApperIcon name="Square" className="w-4 h-4" />
+                              <span>{property.squareFootage.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </motion.div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Property Grid */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              layout
+            >
+              {/* Properties will be rendered here by the existing code */}
+            </motion.div>
+          </>
+        )}
+      </div>
+
+      {/* Saved Searches Modal */}
+<AnimatePresence>
+        {showSavedSearches && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowSavedSearches(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-white dark:bg-surface-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                      Saved Searches
+                    </h2>
+                    <p className="text-surface-600 dark:text-surface-300 mt-1">
+                      Manage your saved property searches and notifications
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowSavedSearches(false)}
+                    className="p-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 rounded-xl transition-colors"
+                  >
+                    <ApperIcon name="X" className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
                         </div>
                         
                         {/* Search Stats */}
