@@ -7,15 +7,16 @@ const MainFeature = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [priceRange, setPriceRange] = useState([0, 1000000])
-  const [bedrooms, setBedrooms] = useState('any')
+const [bedrooms, setBedrooms] = useState('any')
   const [propertyType, setPropertyType] = useState('all')
-const [sortBy, setSortBy] = useState('price-low')
+  const [sortBy, setSortBy] = useState('price-low')
   const [viewMode, setViewMode] = useState('grid')
   const [showFilters, setShowFilters] = useState(false)
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [selectedProperty, setSelectedProperty] = useState(null)
+const [selectedProperty, setSelectedProperty] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
-const [selectedTime, setSelectedTime] = useState(null)
+  const [selectedTime, setSelectedTime] = useState(null)
   const [showComparison, setShowComparison] = useState(false)
   const [comparedProperties, setComparedProperties] = useState(new Set())
   const [showCalendar, setShowCalendar] = useState(false)
@@ -27,9 +28,10 @@ const [selectedTime, setSelectedTime] = useState(null)
     name: '',
     email: '',
     phone: '',
-    message: ''
+message: ''
   })
-// Mock property data
+  
+  // Mock property data
   const mockProperties = [
     {
       id: '1',
@@ -194,13 +196,12 @@ const [selectedTime, setSelectedTime] = useState(null)
       toast.success('Property saved to favorites')
     }
     setSavedProperties(newSaved)
-  }
+}
 
-const handleInquiry = (property) => {
+  const handleInquiry = (property) => {
     toast.success(`Inquiry sent for ${property.title}`)
     setSelectedProperty(null)
   }
-
   const getComparedPropertiesData = () => {
     return mockProperties.filter(property => comparedProperties.has(property.id))
   }
@@ -211,11 +212,11 @@ const handleInquiry = (property) => {
 
   const removeFromComparison = (propertyId) => {
     const newCompared = new Set(comparedProperties)
-    newCompared.delete(propertyId)
+newCompared.delete(propertyId)
     setComparedProperties(newCompared)
     if (newCompared.size === 0) {
       setShowComparison(false)
-}
+    }
   }
 
   // 360-degree gallery handlers
@@ -271,39 +272,44 @@ const handleInquiry = (property) => {
       toast.success('Property removed from comparison')
     } else {
       newCompared.add(propertyId)
-      toast.success('Property added to comparison')
+toast.success('Property added to comparison')
     }
-setComparedProperties(newCompared)
+    setComparedProperties(newCompared)
   }
 
   // Utility function for clipboard operations with fallback
   const copyToClipboard = async (text) => {
     try {
-      // Try modern Clipboard API first
+      // Check if we're in a secure context and have clipboard API
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
         return true;
-      } else {
-        // Fallback to legacy method
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        const result = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        if (!result) {
-          throw new Error('Copy command failed');
-        }
-        return true;
       }
+      
+      // Fallback method for non-secure contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'absolute';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '-9999px';
+      textArea.setAttribute('readonly', '');
+      document.body.appendChild(textArea);
+      
+      // Select the text
+      textArea.select();
+      textArea.setSelectionRange(0, 99999); // For mobile devices
+      
+      // Execute copy command
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (!successful) {
+        throw new Error('Copy command was unsuccessful');
+      }
+      
+      return true;
     } catch (err) {
-      console.error('Clipboard operation failed:', err);
+      console.warn('Clipboard operation failed:', err.message);
       return false;
     }
   };
@@ -316,7 +322,7 @@ setComparedProperties(newCompared)
     if (success) {
       toast.success('Property link copied to clipboard!');
     } else {
-      toast.error('Failed to copy link. Please copy manually: ' + url);
+      toast.error('Unable to copy automatically. Please copy this link manually: ' + url);
     }
   };
 
@@ -402,9 +408,9 @@ setComparedProperties(newCompared)
               </button>
             </div>
           </div>
-        </div>
+</div>
 
-{/* Advanced Filters */}
+        {/* Advanced Filters */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -616,9 +622,9 @@ setComparedProperties(newCompared)
                       +{property.amenities.length - 3} more
                     </span>
                   )}
-                </div>
+</div>
 
-<button
+                <button
                   onClick={(e) => {
                     e.stopPropagation()
                     setSelectedProperty(property)
@@ -640,13 +646,12 @@ setComparedProperties(newCompared)
                 >
                   <ApperIcon name="GitCompare" className="w-4 h-4 mr-2" />
                   {comparedProperties.has(property.id) ? 'Remove from Compare' : 'Compare'}
-                </button>
+</button>
               </div>
-</motion.div>
+            </motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
-
       {/* Empty State */}
       {filteredProperties.length === 0 && (
         <motion.div 
@@ -704,9 +709,9 @@ setComparedProperties(newCompared)
                   className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200"
                 >
                   <ApperIcon name="X" className="w-5 h-5" />
-                </button>
+</button>
 
-{/* Property Image */}
+                {/* Property Image */}
                 <div className="aspect-property relative group">
                   <img
                     src={selectedProperty.images[0]}
@@ -830,13 +835,13 @@ setComparedProperties(newCompared)
                         savedProperties.has(selectedProperty.id) ? 'bg-red-50 border-red-200 text-red-600' : ''
                       }`}
                     >
-                      <ApperIcon 
-                        name="Heart" 
-className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-current' : ''}`} 
-                      />
-                      {savedProperties.has(selectedProperty.id) ? 'Saved' : 'Save Property'}
-                    </button>
-                  </div>
+<ApperIcon 
+                      name="Heart" 
+                      className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-current' : ''}`} 
+                    />
+                    {savedProperties.has(selectedProperty.id) ? 'Saved' : 'Save Property'}
+                  </button>
+                </div>
                 </div>
               </div>
             </motion.div>
@@ -930,18 +935,31 @@ className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-curr
                 >
                   <ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
                   Reset View
-                </button>
+</button>
                 
                 <button
-                  onClick={() => {
-                    navigator.share?.({
-                      title: selectedProperty.title,
-                      text: `Check out this 360° view of ${selectedProperty.title}`,
-                      url: window.location.href
-                    }).catch(() => {
-                      navigator.clipboard?.writeText(window.location.href)
-                      toast.success('Link copied to clipboard')
-                    })
+                  onClick={async () => {
+                    // Try native sharing first
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: selectedProperty.title,
+                          text: `Check out this 360° view of ${selectedProperty.title}`,
+                          url: window.location.href
+                        });
+                        return;
+                      } catch (err) {
+                        // User cancelled or sharing failed, fall back to clipboard
+                      }
+                    }
+                    
+                    // Fallback to clipboard
+                    const success = await copyToClipboard(window.location.href);
+                    if (success) {
+                      toast.success('Gallery link copied to clipboard!');
+                    } else {
+                      toast.error('Unable to share. Please copy the URL manually.');
+                    }
                   }}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
                 >
@@ -961,7 +979,6 @@ className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-curr
                 </button>
               </div>
             </div>
-
             {/* Loading Indicator */}
             {isDragging && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -1187,9 +1204,9 @@ className={`w-5 h-5 mr-2 ${savedProperties.has(selectedProperty.id) ? 'fill-curr
                   ))}
                 </div>
               </div>
-            </motion.div>
+</motion.div>
           </motion.div>
-)}
+        )}
       </AnimatePresence>
     </div>
   )
