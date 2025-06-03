@@ -11,10 +11,18 @@ const MainFeature = () => {
   const [propertyType, setPropertyType] = useState('all')
   const [sortBy, setSortBy] = useState('price-low')
   const [viewMode, setViewMode] = useState('grid')
-  const [showFilters, setShowFilters] = useState(false)
+const [showFilters, setShowFilters] = useState(false)
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [selectedProperty, setSelectedProperty] = useState(null)
-
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedTime, setSelectedTime] = useState(null)
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [appointmentForm, setAppointmentForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  })
   // Mock property data
   const mockProperties = [
     {
