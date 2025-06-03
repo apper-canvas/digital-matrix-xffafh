@@ -1789,19 +1789,9 @@ onWheel={handleWheel}
                   ))}
               </motion.div>
             )}
+)}
           </div>
-        ) : (
-          <>
-            {/* Property Grid */}
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-layout
-            >
-              {/* Properties will be rendered here by the existing code */}
-            </motion.div>
-          </>
-</>
-        )}
+        ) : null}
 
       {/* Saved Searches Modal */}
       <AnimatePresence>
