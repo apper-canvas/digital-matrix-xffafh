@@ -11,10 +11,9 @@ const [bedrooms, setBedrooms] = useState('any')
   const [propertyType, setPropertyType] = useState('all')
   const [sortBy, setSortBy] = useState('price-low')
   const [viewMode, setViewMode] = useState('grid')
-  const [showFilters, setShowFilters] = useState(false)
+const [showFilters, setShowFilters] = useState(false)
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [selectedProperty, setSelectedProperty] = useState(null)
-const [selectedProperty, setSelectedProperty] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
   const [showComparison, setShowComparison] = useState(false)
@@ -24,13 +23,12 @@ const [selectedProperty, setSelectedProperty] = useState(null)
   const [galleryRotation, setGalleryRotation] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [appointmentForm, setAppointmentForm] = useState({
+const [appointmentForm, setAppointmentForm] = useState({
     name: '',
     email: '',
     phone: '',
-message: ''
+    message: ''
   })
-  
   // Mock property data
   const mockProperties = [
     {
