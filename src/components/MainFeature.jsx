@@ -9,13 +9,15 @@ const MainFeature = () => {
   const [priceRange, setPriceRange] = useState([0, 1000000])
   const [bedrooms, setBedrooms] = useState('any')
   const [propertyType, setPropertyType] = useState('all')
-  const [sortBy, setSortBy] = useState('price-low')
+const [sortBy, setSortBy] = useState('price-low')
   const [viewMode, setViewMode] = useState('grid')
-const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [savedProperties, setSavedProperties] = useState(new Set())
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
   const [selectedTime, setSelectedTime] = useState(null)
+  const [showComparison, setShowComparison] = useState(false)
+  const [comparedProperties, setComparedProperties] = useState(new Set())
   const [showCalendar, setShowCalendar] = useState(false)
   const [appointmentForm, setAppointmentForm] = useState({
     name: '',
@@ -157,11 +159,27 @@ const [showFilters, setShowFilters] = useState(false)
     setSavedProperties(newSaved)
   }
 
-  const handleInquiry = (property) => {
+const handleInquiry = (property) => {
     toast.success(`Inquiry sent for ${property.title}`)
     setSelectedProperty(null)
   }
 
+  const getComparedPropertiesData = () => {
+    return mockProperties.filter(property => comparedProperties.has(property.id))
+  }
+
+  const clearComparison = () => {
+    setComparedProperties(new Set())
+  }
+
+  const removeFromComparison = (propertyId) => {
+    const newCompared = new Set(comparedProperties)
+    newCompared.delete(propertyId)
+    setComparedProperties(newCompared)
+    if (newCompared.size === 0) {
+      setShowComparison(false)
+    }
+  }
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Search and Filter Header */}
@@ -637,11 +655,211 @@ const [showFilters, setShowFilters] = useState(false)
                   </div>
                 </div>
               </div>
+</motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Property Comparison Modal */}
+      <AnimatePresence>
+        {showComparison && comparedProperties.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowComparison(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-white dark:bg-surface-800 rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-surface-900 dark:text-white">
+                      Property Comparison
+                    </h2>
+                    <p className="text-surface-600 dark:text-surface-300 mt-1">
+                      Comparing {comparedProperties.size} propert{comparedProperties.size === 1 ? 'y' : 'ies'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={clearComparison}
+                      className="btn-secondary text-sm py-2 px-4"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      onClick={() => setShowComparison(false)}
+                      className="p-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-700 dark:hover:bg-surface-600 rounded-xl transition-colors"
+                    >
+                      <ApperIcon name="X" className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <th className="text-left p-4 w-48 bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        <span className="text-sm font-medium text-surface-600 dark:text-surface-400">Property</span>
+                      </th>
+                      {getComparedPropertiesData().map((property) => (
+                        <th key={property.id} className="p-4 min-w-64">
+                          <div className="text-center">
+                            <img
+                              src={property.images[0]}
+                              alt={property.title}
+                              className="w-full h-32 object-cover rounded-xl mb-3"
+                            />
+                            <h3 className="font-semibold text-surface-900 dark:text-white mb-1 text-sm">
+                              {property.title}
+                            </h3>
+                            <p className="text-xs text-surface-600 dark:text-surface-300">
+                              {property.address.city}, {property.address.state}
+                            </p>
+                            <button
+                              onClick={() => removeFromComparison(property.id)}
+                              className="mt-2 p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              <ApperIcon name="X" className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Price
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center">
+                          <span className="text-xl font-bold text-primary">
+                            {formatPrice(property.price, property.listingType)}
+                          </span>
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Address
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center text-sm text-surface-600 dark:text-surface-300">
+                          {property.address.street}<br />
+                          {property.address.city}, {property.address.state}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Property Type
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center capitalize text-surface-900 dark:text-white">
+                          {property.propertyType}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Bedrooms
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center text-surface-900 dark:text-white">
+                          {property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed${property.bedrooms !== 1 ? 's' : ''}`}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Bathrooms
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center text-surface-900 dark:text-white">
+                          {property.bathrooms} bath{property.bathrooms !== 1 ? 's' : ''}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Square Footage
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center text-surface-900 dark:text-white">
+                          {property.squareFootage.toLocaleString()} sqft
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Listing Type
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4 text-center">
+                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                            property.listingType === 'sale' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
+                          }`}>
+                            {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
+                          </span>
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="p-4 font-medium text-surface-900 dark:text-white bg-surface-50 dark:bg-surface-900 sticky left-0 z-10">
+                        Amenities
+                      </td>
+                      {getComparedPropertiesData().map((property) => (
+                        <td key={property.id} className="p-4">
+                          <div className="flex flex-wrap gap-1 justify-center">
+                            {property.amenities.map((amenity) => (
+                              <span
+                                key={amenity}
+                                className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full"
+                              >
+                                {amenity}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="p-6 border-t border-surface-200 dark:border-surface-700">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {getComparedPropertiesData().map((property) => (
+                    <button
+                      key={property.id}
+                      onClick={() => {
+                        setSelectedProperty(property)
+                        setShowComparison(false)
+                      }}
+                      className="btn-primary text-sm py-2 px-4"
+                    >
+                      View {property.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+</div>
   )
 }
 
