@@ -47,6 +47,7 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
   })
   const [inquiryErrors, setInquiryErrors] = useState({})
   // Mock property data
+// Mock property data
   const mockProperties = [
     {
       id: '1',
@@ -66,7 +67,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop'
       ],
       amenities: ['Pool', 'Gym', 'Parking', 'Concierge'],
-      description: 'Stunning modern apartment in the heart of downtown with breathtaking city views.'
+      description: 'Stunning modern apartment in the heart of downtown with breathtaking city views.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        name: 'Michael Chen',
+        title: 'Senior Real Estate Agent',
+        company: 'Manhattan Premier Properties',
+        phone: '(212) 555-0123',
+        email: 'michael.chen@manhattanpremier.com',
+        bio: 'Michael specializes in luxury downtown properties and has been helping clients find their perfect home in Manhattan for over 8 years.',
+        rating: 4.9,
+        totalReviews: 127,
+        responseTime: 'within 2 hours',
+        availability: 'Available now',
+        yearsExperience: 8,
+        languages: ['English', 'Mandarin', 'Spanish'],
+        specialties: ['Luxury Apartments', 'Downtown Properties', 'Investment Properties']
+      }
     },
     {
       id: '2',
@@ -86,7 +103,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&h=800&fit=crop'
       ],
       amenities: ['Garden', 'Garage', 'Pool', 'Security'],
-      description: 'Beautiful family home with spacious rooms and a large backyard perfect for entertaining.'
+      description: 'Beautiful family home with spacious rooms and a large backyard perfect for entertaining.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b412?w=150&h=150&fit=crop&crop=face',
+        name: 'Sarah Rodriguez',
+        title: 'Family Home Specialist',
+        company: 'LA Family Estates',
+        phone: '(323) 555-0198',
+        email: 'sarah.rodriguez@lafamilyestates.com',
+        bio: 'Sarah is dedicated to helping families find their dream homes in Los Angeles. With extensive knowledge of family-friendly neighborhoods and schools.',
+        rating: 4.8,
+        totalReviews: 89,
+        responseTime: 'within 1 hour',
+        availability: 'Available now',
+        yearsExperience: 6,
+        languages: ['English', 'Spanish'],
+        specialties: ['Family Homes', 'Suburban Properties', 'School Districts']
+      }
     },
     {
       id: '3',
@@ -105,7 +138,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop'
       ],
       amenities: ['High Ceilings', 'Exposed Brick', 'Hardwood Floors'],
-      description: 'Charming studio loft in the vibrant arts district with exposed brick walls.'
+      description: 'Charming studio loft in the vibrant arts district with exposed brick walls.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        name: 'David Thompson',
+        title: 'Urban Living Specialist',
+        company: 'Chicago Urban Rentals',
+        phone: '(312) 555-0176',
+        email: 'david.thompson@chicagourban.com',
+        bio: 'David specializes in unique urban rentals and loft spaces in Chicago\'s most vibrant neighborhoods. Perfect for young professionals and artists.',
+        rating: 4.7,
+        totalReviews: 156,
+        responseTime: 'within 3 hours',
+        availability: 'Available now',
+        yearsExperience: 5,
+        languages: ['English', 'French'],
+        specialties: ['Studio Apartments', 'Loft Spaces', 'Urban Rentals']
+      }
     },
     {
       id: '4',
@@ -124,7 +173,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=800&fit=crop'
       ],
       amenities: ['Garage', 'Backyard', 'Fireplace', 'Updated Kitchen'],
-      description: 'Perfect suburban home with modern updates and a beautiful backyard.'
+      description: 'Perfect suburban home with modern updates and a beautiful backyard.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+        name: 'Robert Johnson',
+        title: 'Suburban Home Expert',
+        company: 'Austin Dream Homes',
+        phone: '(512) 555-0187',
+        email: 'robert.johnson@austindreamhomes.com',
+        bio: 'Robert has been helping families find their perfect suburban homes in Austin for over 10 years. Expert in family neighborhoods and local amenities.',
+        rating: 4.9,
+        totalReviews: 203,
+        responseTime: 'within 1 hour',
+        availability: 'Available now',
+        yearsExperience: 10,
+        languages: ['English'],
+        specialties: ['Suburban Homes', 'First-Time Buyers', 'Family Properties']
+      }
     },
     {
       id: '5',
@@ -144,7 +209,23 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop'
       ],
       amenities: ['Ocean View', 'Balcony', 'Concierge', 'Spa', 'Valet'],
-      description: 'Spectacular penthouse with panoramic ocean views and luxury amenities.'
+      description: 'Spectacular penthouse with panoramic ocean views and luxury amenities.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
+        name: 'Isabella Martinez',
+        title: 'Luxury Property Consultant',
+        company: 'Miami Elite Properties',
+        phone: '(305) 555-0134',
+        email: 'isabella.martinez@miamielite.com',
+        bio: 'Isabella specializes in high-end luxury properties and penthouses in Miami. With exclusive access to the finest properties and personalized service.',
+        rating: 5.0,
+        totalReviews: 67,
+        responseTime: 'within 30 minutes',
+        availability: 'Available now',
+        yearsExperience: 12,
+        languages: ['English', 'Spanish', 'Portuguese'],
+        specialties: ['Luxury Properties', 'Penthouses', 'Waterfront Homes']
+      }
     },
     {
       id: '6',
@@ -163,15 +244,30 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
         'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop'
       ],
       amenities: ['City View', 'Gym', 'Rooftop', 'Pet Friendly'],
-      description: 'Modern apartment in the heart of the city with excellent amenities.'
-    }
+      description: 'Modern apartment in the heart of the city with excellent amenities.',
+      agent: {
+        photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+        name: 'Jennifer Kim',
+        title: 'Downtown Rental Specialist',
+        company: 'Seattle City Living',
+        phone: '(206) 555-0145',
+        email: 'jennifer.kim@seattlecityliving.com',
+        bio: 'Jennifer helps young professionals and newcomers find the perfect rental in Seattle\'s downtown core. Expert in city amenities and transportation.',
+        rating: 4.6,
+        totalReviews: 94,
+        responseTime: 'within 4 hours',
+        availability: 'Available now',
+        yearsExperience: 4,
+        languages: ['English', 'Korean'],
+        specialties: ['Downtown Rentals', 'Professional Housing', 'City Living']
+      }
+}
   ]
 
   // Filter properties based on search criteria
   const filteredProperties = mockProperties.filter(property => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          property.address.city.toLowerCase().includes(searchQuery.toLowerCase())
-    
     const matchesType = propertyType === 'all' || property.propertyType === propertyType
     const matchesBedrooms = bedrooms === 'any' || 
                            (bedrooms === '0' && property.bedrooms === 0) ||
@@ -196,9 +292,9 @@ const [showInquiryForm, setShowInquiryForm] = useState(false)
 
   const formatPrice = (price, listingType) => {
     if (listingType === 'rent') {
-      return `$${price.toLocaleString()}/mo`
+return `$${price.toLocaleString()}/mo`
     }
-return `$${price.toLocaleString()}`
+    return `$${price.toLocaleString()}`
   }
 
   // Initialize saved properties state
@@ -242,11 +338,10 @@ return `$${price.toLocaleString()}`
       errors.message = 'Message is required'
     } else if (inquiryForm.message.trim().length < 10) {
       errors.message = 'Message must be at least 10 characters long'
-    }
+}
     
-return errors
+    return errors
   }
-
 const handleInquirySubmit = (e) => {
     e.preventDefault()
     const errors = validateInquiryForm()
@@ -313,16 +408,16 @@ const handleInquirySubmit = (e) => {
     setComparedProperties(new Set())
   }
 
-  const removeFromComparison = (propertyId) => {
+const removeFromComparison = (propertyId) => {
     const newCompared = new Set(comparedProperties)
-newCompared.delete(propertyId)
+    newCompared.delete(propertyId)
     setComparedProperties(newCompared)
     if (newCompared.size === 0) {
       setShowComparison(false)
     }
-  }
+}
 
-// 360-degree gallery handlers
+  // 360-degree gallery handlers
   const handleGalleryOpen = () => {
     setShowGallery(true)
     setGalleryRotation(0)
@@ -374,9 +469,9 @@ newCompared.delete(propertyId)
     if (newCompared.has(propertyId)) {
       newCompared.delete(propertyId)
       toast.success('Property removed from comparison')
-    } else {
+} else {
       newCompared.add(propertyId)
-toast.success('Property added to comparison')
+      toast.success('Property added to comparison')
     }
     setComparedProperties(newCompared)
   }
@@ -443,9 +538,9 @@ toast.success('Property added to comparison')
     if (success) {
       toast.success('Property details copied to clipboard!');
     } else {
-      toast.error('Failed to copy details. Please copy manually.');
+toast.error('Failed to copy details. Please copy manually.');
     }
-};
+  };
 
   // Saved search functions
   const executeSavedSearch = (search) => {
@@ -491,11 +586,10 @@ toast.success('Property added to comparison')
                            (search.bedrooms === '4+' && property.bedrooms >= 4)
     
     const matchesPrice = property.price >= search.priceRange[0] && property.price <= search.priceRange[1]
-    const matchesFilter = search.selectedFilter === 'all' || property.listingType === search.selectedFilter
+const matchesFilter = search.selectedFilter === 'all' || property.listingType === search.selectedFilter
 
-return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matchesFilter
+    return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matchesFilter
   }
-
   // Notification service function
   const startNotificationService = () => {
     if (window.propertyNotificationInterval) {
@@ -600,9 +694,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                   viewMode === 'list' 
                     ? 'border-primary bg-primary/10 text-primary' 
                     : 'border-surface-200 text-surface-600 hover:border-surface-300'
-                }`}
+}`}
               >
-<ApperIcon name="List" className="w-5 h-5" />
+                <ApperIcon name="List" className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -815,9 +909,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                     </span>
                   ))}
                   {property.amenities.length > 3 && (
-                    <span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
+<span className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-full">
                       +{property.amenities.length - 3} more
-</span>
+                    </span>
                   )}
                 </div>
 
@@ -838,9 +932,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                     addToComparison(property.id)
                   }}
                   className={`w-full btn-secondary text-sm py-2 mt-2 ${
-                    comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary' : ''
+comparedProperties.has(property.id) ? 'bg-primary/10 border-primary text-primary' : ''
                   }`}
->
+                >
                   <ApperIcon name="GitCompare" className="w-4 h-4 mr-2" />
                   {comparedProperties.has(property.id) ? 'Remove from Compare' : 'Compare'}
                 </button>
@@ -904,11 +998,10 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                 <button
                   onClick={() => setSelectedProperty(null)}
                   className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200"
+className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-200"
                 >
                   <ApperIcon name="X" className="w-5 h-5" />
-</button>
-
-                {/* Property Image */}
+                </button>
                 <div className="aspect-property relative group">
                   <img
                     src={selectedProperty.images[0]}
@@ -1013,11 +1106,10 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                           className="px-3 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium"
                         >
                           {amenity}
-                        </span>
+</span>
                       ))}
-</div>
+                    </div>
                   </div>
-
                   {/* Agent/Seller Contact Information */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">
@@ -1227,9 +1319,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
             <div 
               className="relative w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
               onMouseDown={handleMouseDown}
-              onWheel={handleWheel}
+onWheel={handleWheel}
             >
-<div 
+              <div 
                 className="w-full h-full bg-cover bg-center transition-all duration-300 ease-out"
                 style={{
                   backgroundImage: `url(${selectedProperty.images[currentGalleryImageIndex]})`,
@@ -1249,9 +1341,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
 
             {/* Gallery Navigation */}
             <div className="absolute bottom-0 left-0 right-0 z-10 p-6 bg-gradient-to-t from-black/50 to-transparent">
-              <div className="flex justify-center items-center space-x-4">
+<div className="flex justify-center items-center space-x-4">
                 <div className="flex space-x-2 bg-black/30 rounded-full p-2 backdrop-blur-sm">
-{selectedProperty.images.map((image, index) => (
+                  {selectedProperty.images.map((image, index) => (
                     <button
                       key={index}
                       className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
@@ -1279,9 +1371,9 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                   onClick={() => setGalleryRotation(0)}
                   className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm transition-colors backdrop-blur-sm"
                 >
-                  <ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
+<ApperIcon name="RotateCcw" className="w-4 h-4 mr-2" />
                   Reset View
-</button>
+                </button>
                 
                 <button
                   onClick={async () => {
@@ -1529,11 +1621,10 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
                           </div>
                         </td>
                       ))}
-                    </tr>
+</tr>
                   </tbody>
-</table>
+                </table>
               </div>
-
               {/* Comparison Actions */}
               <div className="p-6 border-t border-surface-200 dark:border-surface-700">
                 <div className="flex justify-center gap-4">
@@ -1576,11 +1667,10 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
             whileTap={{ scale: 0.98 }}
           >
             <ApperIcon name="Heart" className="w-4 h-4" />
-            <span>View Favorites ({savedProperties.size})</span>
+<span>View Favorites ({savedProperties.size})</span>
           </motion.button>
-</div>
+        </div>
       </div>
-
       {/* Favorites View */}
         {showFavorites ? (
           <div className="space-y-6">
@@ -1705,13 +1795,15 @@ return matchesSearch && matchesType && matchesBedrooms && matchesPrice && matche
             {/* Property Grid */}
             <motion.div 
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              layout
+layout
             >
-{/* Properties will be rendered here by the existing code */}
+              {/* Properties will be rendered here by the existing code */}
             </motion.div>
           </>
+</>
         )}
-{/* Saved Searches Modal */}
+
+      {/* Saved Searches Modal */}
       <AnimatePresence>
         {showSavedSearches && (
           <motion.div
