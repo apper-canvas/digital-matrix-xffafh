@@ -16,6 +16,13 @@ const Home = () => {
     description: ''
   })
 
+  // Footer options state
+  const [socialLinks] = useState([
+    { name: 'Facebook', url: 'https://facebook.com/propspot', icon: 'Facebook' },
+    { name: 'Twitter', url: 'https://twitter.com/propspot', icon: 'Twitter' },
+    { name: 'Instagram', url: 'https://instagram.com/propspot', icon: 'Instagram' }
+  ])
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
     document.documentElement.classList.toggle('dark')
@@ -64,8 +71,55 @@ const Home = () => {
     }))
   }
 
-  const closeModal = () => {
+const closeModal = () => {
     setShowListModal(false)
+  }
+
+  // Footer options handlers
+  const handleSocialClick = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleQuickLinkClick = (linkType) => {
+    switch (linkType) {
+      case 'browse':
+        scrollToSearch()
+        break
+      case 'list':
+        handleListProperty()
+        break
+      case 'insights':
+        // Scroll to features section
+        const featuresSection = document.querySelector('#features-section')
+        if (featuresSection) {
+          featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        break
+      case 'contact':
+        // Scroll to footer
+        const footerSection = document.querySelector('#footer-section')
+        if (footerSection) {
+          footerSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        break
+      default:
+        break
+    }
+  }
+
+  const handleSupportLinkClick = (linkType) => {
+    // For now, these would typically link to dedicated pages
+    // Here we'll show a simple alert, but in a real app these would navigate to proper pages
+    const messages = {
+      help: 'Help Center - Find answers to common questions and get support.',
+      privacy: 'Privacy Policy - Learn how we protect and handle your personal information.',
+      terms: 'Terms of Service - Review our terms and conditions for using PropSpot.',
+      faq: 'FAQ - Frequently Asked Questions about buying and selling properties.'
+    }
+    
+    if (messages[linkType]) {
+      alert(messages[linkType])
+    }
   }
 
   const features = [
@@ -198,8 +252,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-12 md:py-16 bg-surface-50/50 dark:bg-surface-900/50">
+{/* Features Grid */}
+      <section id="features-section" className="py-12 md:py-16 bg-surface-50/50 dark:bg-surface-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12 md:mb-16"
@@ -241,8 +295,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-surface-900 dark:bg-surface-950 text-white py-12 md:py-16">
+{/* Footer */}
+      <footer id="footer-section" className="bg-surface-900 dark:bg-surface-950 text-white py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-2">
@@ -256,35 +310,94 @@ const Home = () => {
                 Your trusted partner in finding exceptional properties. Connect with verified sellers and discover your dream home today.
               </p>
               <div className="flex space-x-4">
-                <button className="p-2 rounded-lg bg-surface-800 hover:bg-surface-700 transition-colors duration-200">
-                  <ApperIcon name="Facebook" className="w-5 h-5" />
-                </button>
-                <button className="p-2 rounded-lg bg-surface-800 hover:bg-surface-700 transition-colors duration-200">
-                  <ApperIcon name="Twitter" className="w-5 h-5" />
-                </button>
-                <button className="p-2 rounded-lg bg-surface-800 hover:bg-surface-700 transition-colors duration-200">
-                  <ApperIcon name="Instagram" className="w-5 h-5" />
-                </button>
+                {socialLinks.map((social, index) => (
+                  <motion.button
+                    key={social.name}
+                    onClick={() => handleSocialClick(social.url)}
+                    className="p-2 rounded-lg bg-surface-800 hover:bg-surface-700 transition-all duration-200 cursor-pointer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    title={`Visit our ${social.name} page`}
+                  >
+                    <ApperIcon name={social.icon} className="w-5 h-5" />
+                  </motion.button>
+                ))}
               </div>
             </div>
             
-            <div>
+<div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-surface-300">
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Browse Properties</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">List Your Property</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Market Insights</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Contact Us</a></li>
+                <li>
+                  <button 
+                    onClick={() => handleQuickLinkClick('browse')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Browse Properties
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleQuickLinkClick('list')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    List Your Property
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleQuickLinkClick('insights')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Market Insights
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleQuickLinkClick('contact')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Contact Us
+                  </button>
+                </li>
               </ul>
             </div>
             
-            <div>
+<div>
               <h3 className="text-lg font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-surface-300">
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-200">FAQ</a></li>
+                <li>
+                  <button 
+                    onClick={() => handleSupportLinkClick('help')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Help Center
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleSupportLinkClick('privacy')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleSupportLinkClick('terms')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleSupportLinkClick('faq')}
+                    className="hover:text-white transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    FAQ
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
